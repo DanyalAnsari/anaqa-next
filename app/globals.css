@@ -1,26 +1,63 @@
 @import "tailwindcss";
+@plugin "daisyui" {
+	themes: anaqa --default;
+}
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@plugin "daisyui/theme" {
+	name: "anaqa";
+	default: true;
+	prefersdark: false;
+	color-scheme: "light";
+	--color-base-100: oklch(100% 0 0);
+	--color-base-200: oklch(96% 0.007 247.896);
+	--color-base-300: oklch(92% 0.013 255.508);
+	--color-base-content: oklch(32.437% 0.022 264.182);
+	--color-primary: oklch(20% 0.042 265.755);
+	--color-primary-content: oklch(96% 0.007 247.896);
+	--color-secondary: oklch(44% 0.043 257.281);
+	--color-secondary-content: oklch(98% 0.003 247.858);
+	--color-accent: oklch(70% 0.04 256.788);
+	--color-accent-content: oklch(15.492% 0.012 217.469);
+	--color-neutral: oklch(55% 0.046 257.417);
+	--color-neutral-content: oklch(0% 0 0);
+	--color-info: oklch(86% 0.022 252.894);
+	--color-info-content: oklch(13.841% 0.012 332.664);
+	--color-success: oklch(62% 0.194 149.214);
+	--color-success-content: oklch(15.365% 0.014 131.063);
+	--color-warning: oklch(66% 0.179 58.318);
+	--color-warning-content: oklch(17.097% 0.017 84.093);
+	--color-error: oklch(57% 0.245 27.325);
+	--color-error-content: oklch(0% 0 0);
+	--radius-selector: 1rem;
+	--radius-field: 0.25rem;
+	--radius-box: 0.5rem;
+	--size-selector: 0.25rem;
+	--size-field: 0.25rem;
+	--border: 1px;
+	--depth: 1;
+	--noise: 1;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+	--font-playfair: var(--font-playfair);
+	--font-montserrat: var(--font-montserrat);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+	background: var(--color-base-100);
+	color: var(--color-base-content);
+	font-family: Arial, Helvetica, sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	font: var(--font-playfair);
+}
+
+.logo {
+	@apply font-montserrat;
 }
