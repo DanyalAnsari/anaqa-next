@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Poppins, Playfair_Display, Montserrat } from "next/font/google";
 import "./globals.css";
+import { Toaster } from "react-hot-toast";
 
 const poppins = Poppins({
 	subsets: ["latin"],
@@ -23,9 +24,10 @@ const montserrat = Montserrat({
 export const metadata: Metadata = {
 	title: "Anaqa",
 	description: "An online clothing store app.",
+	manifest: "/site.webmanifest",
 };
 
-export default function RootLayout({
+export default function AppLayout({
 	children,
 }: Readonly<{
 	children: React.ReactNode;
@@ -35,6 +37,7 @@ export default function RootLayout({
 			<body
 				className={`${poppins.className} ${playfair.variable} ${montserrat.variable} antialiased`}
 			>
+				<Toaster />
 				{children}
 			</body>
 		</html>
