@@ -12,7 +12,7 @@ interface Props extends BaseComponentProps {
 const navLink = cva("nav-link", {
   variants: {
     variant: {
-      desktop: "flex flex-col items-center gap-1 font-medium",
+      desktop: "flex flex-col items-center gap-1 font-medium hover:text-primary normal-case underline-offset-6 hover:underline",
       mobile: "",
     },
   },
