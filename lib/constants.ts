@@ -4,6 +4,9 @@ import {
 	Mail,
 	MapPin,
 	Phone,
+	RefreshCw,
+	Shield,
+	Truck,
 	Twitter,
 	Youtube,
 } from "lucide-react";
@@ -50,3 +53,21 @@ export const FOOTER_SOCIAL_ICONS = [
 	{ icon: Instagram, label: "Instagram" },
 	{ icon: Youtube, label: "YouTube" },
 ] as InfoWithIconItems[];
+
+export const HERO_FEATURES_ITEMS = [
+	{
+		label: "Free Shipping",
+		icon: Truck,
+		type: "info",
+	},
+	{
+		label: "Easy Returns",
+		icon: RefreshCw,
+		type: "success",
+	},
+	{
+		label: "Secure Payment",
+		icon: Shield,
+		type: "secondary",
+	},
+] as HeroFeaturesItemsProp[];

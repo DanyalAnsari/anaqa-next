@@ -49,37 +49,6 @@ body {
 	font-family: Arial, Helvetica, sans-serif;
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-	font: var(--font-playfair);
-}
-
-@layer utilities {
-	.container {
-		@apply max-w-7xl mx-auto px-4;
-	}
-
-	.logo {
-		@apply font-montserrat btn btn-ghost text-xl lg:text-2xl xl:text-3xl;
-	}
-
-	.nav-link {
-		@apply text-neutral hover:text-primary transition-colors duration-300;
-	}
-
-	.nav-mobile {
-		@apply menu-sm bg-base-100 rounded-box z-[100] mt-3 md:w-52 p-2 shadow;
-	}
-
-	.social-icon {
-		@apply bg-base-100 border-base-300/50 rounded-full text-neutral hover:bg-primary hover:text-primary-content hover:border-primary;
-	}
-}
-
 a.active hr {
 	display: block;
 }
@@ -93,5 +62,76 @@ a.active {
 	a.active {
 		background-color: black;
 		color: white;
+	}
+}
+
+/* Common classes */
+
+@layer utilities {
+	.container {
+		@apply max-w-7xl mx-auto px-4;
+	}
+
+	.logo {
+		@apply font-montserrat btn btn-ghost text-xl lg:text-2xl xl:text-3xl;
+	}
+
+	.image-hover {
+		@apply w-full object-cover transition-transform duration-700 hover:scale-105;
+	}
+
+	.image-overlay {
+		@apply absolute inset-0 opacity-0 hover:opacity-100 transition-opacity duration-300;
+	}
+}
+
+/* Gradient Classes */
+
+@layer utilities {
+	.gradient-overlay-main {
+		@apply bg-gradient-to-t from-base-content/20 to-transparent;
+	}
+
+	.gradient-overlay-card {
+		@apply bg-gradient-to-t from-primary/20 via-primary/5 to-transparent;
+	}
+}
+
+/* Navigation & Header Component Classes */
+
+@layer utilities {
+	.nav-link {
+		@apply text-neutral active:text-primary hover:text-primary transition-all duration-500  normal-case underline-offset-6 hover:underline;
+	}
+
+	.nav-mobile {
+		@apply menu-sm bg-base-100 rounded-box z-[100] mt-3 md:w-52 p-2 shadow;
+	}
+}
+
+/* Footer classes */
+
+@layer utilities {
+	.social-icon {
+		@apply bg-base-100 border-base-300/50 rounded-full text-neutral hover:bg-primary hover:text-primary-content hover:border-primary;
+	}
+}
+
+/* Hero Component Classes */
+
+@layer utilities {
+	.bg-gradient-hero {
+		@apply bg-gradient-to-br from-base-100 via-base-200 to-base-300;
+	}
+	.hero-image-container {
+		@apply relative overflow-hidden rounded-xl shadow-xl border border-base-300/50;
+	}
+
+	.hero-content-flex {
+		@apply flex items-center justify-center lg:justify-start gap-3;
+	}
+
+	.hero-cta-flex {
+		@apply flex flex-col items-center justify-center sm:flex-row gap-4 lg:justify-start mb-10;
 	}
 }
