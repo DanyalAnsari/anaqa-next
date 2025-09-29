@@ -74,7 +74,7 @@ const QuickLinks = ({ links, heading }: QuickLinksProps) => {
 			<H5 className="mb-6">{heading}</H5>
 			<ul className="space-y-3">
 				{links.map(({ label, href }) => (
-					<li key={href}>
+					<li key={label}>
 						<Link
 							href={href}
 							className="text-neutral hover:text-primary text-sm hover:translate-x-1 inline-block transition-all duration-300"
