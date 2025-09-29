@@ -15,6 +15,14 @@ declare global {
 			Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>
 		>;
 	}
+
+	type LucideIconType = ForwardRefExoticComponent<
+		Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>
+	>;
+
+	interface HeroFeaturesItemsProp extends InfoWithIconItems {
+		type: "info" | "success" | "secondary";
+	}
 }
 
 export {};
