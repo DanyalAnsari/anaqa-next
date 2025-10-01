@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Poppins, Playfair_Display, Montserrat } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "react-hot-toast";
+import Footer from "@/components/Footer";
 
 const poppins = Poppins({
 	subsets: ["latin"],
@@ -39,6 +40,7 @@ export default function AppLayout({
 			>
 				<Toaster />
 				{children}
+				<Footer />
 			</body>
 		</html>
 	);

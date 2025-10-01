@@ -20,6 +20,7 @@ const gridVariants = cva("grid", {
 		layout: {
 			default: "",
 			list: "max-w-4xl",
+			"feature-grid": "md:grid-cols-3",
 			responsive: "md:grid-cols-2 lg:grid-cols-4",
 		},
 	},
@@ -27,6 +28,11 @@ const gridVariants = cva("grid", {
 		{
 			layout: "list",
 			gap: "md",
+			class: "grid-cols-1",
+		},
+		{
+			layout: "feature-grid",
+			gap: "lg",
 			class: "grid-cols-1",
 		},
 	],

@@ -14,7 +14,7 @@ import { IconBaseContainer } from "./ui/container/icon-container";
 
 const Footer = () => {
 	return (
-		<footer className="bg-base-200/50 border-t border-base-300/30">
+		<footer className="bg-base-300 border-t border-base-300/30">
 			{/* Main Footer Content */}
 			<div className="py-20 container">
 				<GridContainer layout="responsive" className="md:gap-12">
@@ -74,7 +74,7 @@ const QuickLinks = ({ links, heading }: QuickLinksProps) => {
 			<H5 className="mb-6">{heading}</H5>
 			<ul className="space-y-3">
 				{links.map(({ label, href }) => (
-					<li key={href}>
+					<li key={label}>
 						<Link
 							href={href}
 							className="text-neutral hover:text-primary text-sm hover:translate-x-1 inline-block transition-all duration-300"

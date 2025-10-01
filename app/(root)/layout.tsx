@@ -1,4 +1,3 @@
-import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 
 export default function RootLayout({
@@ -10,7 +9,6 @@ export default function RootLayout({
 		<div className="sm:px-[5vw] md:px-[7vw] lg:px-[9vw] px-4">
 			<Header />
 			<main>{children}</main>
-			<Footer />
 		</div>
 	);
 }
