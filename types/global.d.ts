@@ -23,6 +23,31 @@ declare global {
 	interface HeroFeaturesItemsProp extends InfoWithIconItems {
 		type: "info" | "success" | "secondary";
 	}
+
+	interface FeaturesItemsProp extends InfoWithIconItems {
+		color?:
+			| "info"
+			| "success"
+			| "secondary"
+			| "neutral"
+			| "primary"
+			| "accent"
+			| "warning"
+			| "error";
+		className?: string;
+		text: string;
+		badge?: string;
+	}
+
+	type SectionInfoTypes = {
+		label: string;
+		heading: string;
+		text: string;
+	};
+
+	interface SectionHeadersType {
+		policy: SectionInfoTypes;
+	}
 }
 
 export {};

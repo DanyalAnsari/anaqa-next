@@ -95,6 +95,10 @@ a.active {
 	.gradient-overlay-card {
 		@apply bg-gradient-to-t from-primary/20 via-primary/5 to-transparent;
 	}
+
+	.gradient-bg-dark {
+		@apply bg-gradient-to-br from-secondary/95 to-primary/80 border border-secondary/10;
+	}
 }
 
 /* Navigation & Header Component Classes */
@@ -123,6 +127,11 @@ a.active {
 	.bg-gradient-hero {
 		@apply bg-gradient-to-br from-base-100 via-base-200 to-base-300;
 	}
+
+	.bg-gradient-section {
+		@apply bg-base-300/70 border-base-300 border-y;
+	}
+
 	.hero-image-container {
 		@apply relative overflow-hidden rounded-xl shadow-xl border border-base-300/50;
 	}
@@ -133,5 +142,21 @@ a.active {
 
 	.hero-cta-flex {
 		@apply flex flex-col items-center justify-center sm:flex-row gap-4 lg:justify-start mb-10;
+	}
+}
+
+/* Policy Section Classes */
+
+@layer utilities {
+	.policy-icons-container {
+		@apply bg-base-100 border-base-300/50 hover:border-base-300 hover:-translate-y-1;
+	}
+
+	.policy-icons-flex {
+		@apply flex items-center justify-between w-full mb-6;
+	}
+
+	.policy-icons-line {
+		@apply w-0 self-start h-0.5 transition-all duration-500 mt-6 rounded-full;
 	}
 }
