@@ -29,7 +29,7 @@ export function StoreFooter() {
 				<div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12">
 					{/* Brand */}
 					<div className="md:col-span-1">
-						<Link to="/" className="inline-block">
+						<Link href="/" className="inline-block">
 							<span className="text-xl font-medium tracking-tight">Anāqa</span>
 						</Link>
 						<p className="mt-4 text-sm text-muted-foreground leading-relaxed">
@@ -92,7 +92,7 @@ export function StoreFooter() {
 							{footerLinks.shop.map((link) => (
 								<li key={link.name}>
 									<Link
-										to={link.href}
+										href={link.href}
 										className="text-sm text-muted-foreground hover:text-foreground transition-colors"
 									>
 										{link.name}
@@ -109,7 +109,7 @@ export function StoreFooter() {
 							{footerLinks.help.map((link) => (
 								<li key={link.name}>
 									<Link
-										to={link.href}
+										href={link.href}
 										className="text-sm text-muted-foreground hover:text-foreground transition-colors"
 									>
 										{link.name}
@@ -126,7 +126,7 @@ export function StoreFooter() {
 							{footerLinks.account.map((link) => (
 								<li key={link.name}>
 									<Link
-										to={link.href}
+										href={link.href}
 										className="text-sm text-muted-foreground hover:text-foreground transition-colors"
 									>
 										{link.name}
@@ -146,13 +146,13 @@ export function StoreFooter() {
 					</p>
 					<div className="flex items-center space-x-6 text-sm text-muted-foreground">
 						<Link
-							to="/privacy"
+							href="/privacy"
 							className="hover:text-foreground transition-colors"
 						>
 							Privacy Policy
 						</Link>
 						<Link
-							to="/terms"
+							href="/terms"
 							className="hover:text-foreground transition-colors"
 						>
 							Terms of Service
