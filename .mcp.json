@@ -3,6 +3,10 @@
 		"next-devtools": {
 			"command": "cmd",
 			"args": ["/c", "npx", "next-devtools-mcp"]
+		},
+		"shadcn": {
+			"command": "cmd",
+			"args": ["/c", "npx", "shadcn@latest", "mcp"]
 		}
 	}
 }
