@@ -1,15 +1,21 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter, Playfair_Display, Roboto_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
+import { Toaster } from "@/components/ui/sonner";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
+const interSans = Inter({
+	variable: "--font-inter-sans",
 	subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-	variable: "--font-geist-mono",
+const playfairDisplaySerif = Playfair_Display({
+	variable: "--font-playfair-display-serif",
+	subsets: ["latin"],
+});
+
+const robotoMono = Roboto_Mono({
+	variable: "--font-roboto-mono",
 	subsets: ["latin"],
 });
 
@@ -26,10 +32,17 @@ export default function RootLayout({
 	return (
 		<html lang="en">
 			<body
-				className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+				className={`${interSans.variable} ${playfairDisplaySerif.variable} ${robotoMono.variable} antialiased`}
 				suppressHydrationWarning
 			>
 				<Providers>{children}</Providers>
+				<Toaster
+					position="bottom-right"
+					richColors
+					toastOptions={{
+						className: "border-border bg-card text-card-foreground",
+					}}
+				/>
 			</body>
 		</html>
 	);
