@@ -1,5 +1,5 @@
 import { StoreHeader } from "@/components/layout/store-header";
-// import { StoreFooter } from "@/components/layout/store-footer";
+import { StoreFooter } from "@/components/layout/store-footer";
 
 export default function StoreLayout({
 	children,
