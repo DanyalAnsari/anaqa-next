@@ -7,7 +7,9 @@
       "Bash(npm run:*)",
       "Bash(rm:*)",
       "mcp__next-devtools__browser_eval",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "mcp__next-devtools__init",
+      "mcp__next-devtools__nextjs_call"
     ]
   },
   "enableAllProjectMcpServers": true,
