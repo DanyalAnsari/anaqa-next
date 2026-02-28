@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__next-devtools__nextjs_index",
+      "mcp__next-devtools__upgrade_nextjs_16",
+      "Bash(npx:*)",
+      "Bash(npm run:*)",
+      "Bash(rm:*)",
+      "mcp__next-devtools__browser_eval",
+      "Bash(curl:*)"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "next-devtools"
+  ]
+}
