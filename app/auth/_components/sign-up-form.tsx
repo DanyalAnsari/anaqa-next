@@ -50,12 +50,19 @@ export function SignUpForm() {
 			} else {
 				toast.error(result.error ?? "Failed to create account");
 			}
-		} catch (error) {
-			toast.error("Failed to create account");
-		} finally {
-			setIsLoading(false);
+		if (result.success) {
+			toast.success("Account created!", {
+				description: "Please check your email to verify your account.",
+			});
 			form.reset();
+		} else {
+			toast.error(result.error ?? "Failed to create account");
 		}
+	} catch (error) {
+		toast.error("Failed to create account");
+	} finally {
+		setIsLoading(false);
+	}
 	}
 
 	return (
