@@ -9,7 +9,9 @@
       "mcp__next-devtools__browser_eval",
       "Bash(curl:*)",
       "mcp__next-devtools__init",
-      "mcp__next-devtools__nextjs_call"
+      "mcp__next-devtools__nextjs_call",
+      "WebSearch",
+      "WebFetch(domain:www.better-auth.com)"
     ]
   },
   "enableAllProjectMcpServers": true,
