@@ -23,8 +23,8 @@ export const registerWithEmail = async ({
 		if (error instanceof APIError) {
 			return { success: false, error: error.message };
 		}
-		console.log("Registeration failed:", error);
-		return { success: false, error: "Registeration failed" };
+		console.error("Registration failed:", error);
+		return { success: false, error: "Registration failed" };
 	}
 };
 
