@@ -33,12 +33,13 @@ export function SignInForm() {
 			});
 
 			if (result.success) {
-				toast.success(`Welcome back! ${result.data?.user.name}`);
+				const userName = result.data?.user?.name?.trim();
+				toast.success(userName ? `Welcome back, ${userName}!` : "Welcome back!");
 			} else {
-				toast.error(result.error ?? "Failed to create account");
+				toast.error(result.error ?? "Failed to sign in");
 			}
 		} catch (error) {
-			toast.error("Failed to create account");
+			toast.error("Failed to sign in");
 		} finally {
 			setIsLoading(false);
 			form.reset();
