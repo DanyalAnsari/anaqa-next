@@ -34,6 +34,7 @@ import {
 import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { authClient } from "@/lib/auth-client";
 
 const navigation = [
 	{ name: "Shop", href: "/shop" },
@@ -50,8 +51,18 @@ export function StoreHeader() {
 	const cartItemCount = 0;
 
 	const handleSignOut = async () => {
-		toast.success("Signed out successfully");
-		navigate.push("/");
+		try {
+			const response = await authClient.signOut();
+			if (response.data?.success) {
+				toast.success("Logged out successfully");
+				navigate.push("/");
+			}
+			if (response.error) {
+				toast.error(response.error.message);
+			}
+		} catch (error) {
+			toast.error("Something went wrong");
+		}
 	};
 
 	const handleCartClick = () => {
