@@ -12,9 +12,11 @@ import { Input } from "@/components/ui/input";
 import { Field, FieldLabel, FieldError } from "@/components/ui/field";
 import Link from "next/link";
 import { LoginInput, loginSchema } from "@/lib/validations";
-import { loginWithEmail } from "../actions";
+import { authClient } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
 
 export function SignInForm() {
+	const router = useRouter();
 	const [showPassword, setShowPassword] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 
@@ -27,22 +29,25 @@ export function SignInForm() {
 	async function onSubmit(data: LoginInput) {
 		setIsLoading(true);
 		try {
-			const result = await loginWithEmail({
+			const { data: authData, error } = await authClient.signIn.email({
 				email: data.email,
 				password: data.password,
 			});
-
-			if (result.success) {
-				const userName = result.data?.user?.name?.trim();
-				toast.success(userName ? `Welcome back, ${userName}!` : "Welcome back!");
-			} else {
-				toast.error(result.error ?? "Failed to sign in");
+			if (error) {
+				if (error.code === "EMAIL_NOT_VERIFIED") {
+					router.push(`/auth/verify-email?email=${encodeURIComponent(data.email)}`);
+					return;
+				}
+				toast.error(error.message ?? "Failed to sign in");
+				return;
 			}
+			const userName = authData?.user?.name?.trim();
+			toast.success(userName ? `Welcome back, ${userName}!` : "Welcome back!");
 		} catch (error) {
 			toast.error("Failed to sign in");
 		} finally {
 			setIsLoading(false);
-			form.reset();
+			form.resetField("password");
 		}
 	}
 
