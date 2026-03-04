@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useForm, Controller } from "react-hook-form";
@@ -36,9 +36,12 @@ interface VerifyEmailFormProps {
 	token?: string | null;
 }
 
-export function VerifyEmailForm({ initialEmail = "", token: initialToken }: VerifyEmailFormProps) {
-	const searchParams = useSearchParams();
-	const token = initialToken ?? searchParams.get("token");
+export function VerifyEmailForm({
+	initialEmail = "",
+	token: initialToken,
+}: VerifyEmailFormProps) {
+	const token = initialToken ?? null;
+	const verifiedRef = useRef(false);
 
 	const [verifyState, setVerifyState] = useState<VerifyState>(
 		token ? "verifying" : "waiting",
@@ -53,13 +56,15 @@ export function VerifyEmailForm({ initialEmail = "", token: initialToken }: Veri
 
 	// Auto-verify when token is in URL
 	useEffect(() => {
-		if (!token) return;
+		if (!token || verifiedRef.current) return;
+		verifiedRef.current = true;
 
 		async function verify() {
 			try {
 				await authClient.verifyEmail({
 					query: {
 						token: token!,
+						callbackURL: "/",
 					},
 					fetchOptions: {
 						onSuccess: () => {
@@ -133,7 +138,7 @@ export function VerifyEmailForm({ initialEmail = "", token: initialToken }: Veri
 							Your account is now fully activated. You can sign in.
 						</p>
 						<Button className="w-full" asChild>
-							<Link href="/auth/sign-in">Sign In</Link>
+							<Link href="/"> Home</Link>
 						</Button>
 					</CardContent>
 				</Card>
@@ -183,7 +188,8 @@ export function VerifyEmailForm({ initialEmail = "", token: initialToken }: Veri
 					</CardTitle>
 					<CardDescription>
 						{initialEmail ?
-							<>We've sent a verification link to{" "}
+							<>
+								We've sent a verification link to{" "}
 								<span className="font-medium text-foreground">
 									{initialEmail}
 								</span>
