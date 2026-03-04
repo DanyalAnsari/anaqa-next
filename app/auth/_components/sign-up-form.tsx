@@ -8,7 +8,6 @@ import { Loader2, Eye, EyeOff } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-
 import {
 	Field,
 	FieldLabel,
@@ -17,7 +16,7 @@ import {
 } from "@/components/ui/field";
 
 import { registerSchema, type RegisterInput } from "@/lib/validations";
-import { registerWithEmail } from "../actions";
+import { authClient } from "@/lib/auth-client";
 
 export function SignUpForm() {
 	const [showPassword, setShowPassword] = useState(false);
@@ -37,40 +36,30 @@ export function SignUpForm() {
 	async function onSubmit(data: RegisterInput) {
 		setIsLoading(true);
 		try {
-			const result = await registerWithEmail({
+			await authClient.signUp.email({
 				name: data.name,
 				email: data.email,
 				password: data.password,
+				fetchOptions: {
+					onSuccess: () => {
+						toast.success("Account created!", {
+							description: "Please check your email to verify your account.",
+						});
+					},
+					onError: ({ error }) => {
+						toast.error(error?.message);
+					},
+				},
 			});
-
-			if (result.success) {
-				toast.success("Account created!", {
-					description: "Please check your email to verify your account.",
-				});
-			} else {
-				toast.error(result.error ?? "Failed to create account");
-			}
-		if (result.success) {
-			toast.success("Account created!", {
-				description: "Please check your email to verify your account.",
-			});
-			form.reset();
-		} else {
-			toast.error(result.error ?? "Failed to create account");
+		} catch (error) {
+			toast.error("Failed to create account");
+		} finally {
+			setIsLoading(false);
 		}
-	} catch (error) {
-		toast.error("Failed to create account");
-	} finally {
-		setIsLoading(false);
-	}
 	}
 
 	return (
-		<form
-			onSubmit={form.handleSubmit(onSubmit)}
-			className="space-y-4"
-			noValidate
-		>
+		<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
 			<Controller
 				name="name"
 				control={form.control}
