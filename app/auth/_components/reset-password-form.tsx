@@ -12,7 +12,11 @@ import { Input } from "@/components/ui/input";
 import { Field, FieldLabel, FieldError } from "@/components/ui/field";
 
 import { authClient } from "@/lib/auth-client";
-import { resetPasswordSchema, type ResetPasswordInput } from "@/lib/validations";
+import {
+	resetPasswordSchema,
+	type ResetPasswordInput,
+} from "@/lib/validations";
+import Link from "next/link";
 
 export function ResetPasswordForm() {
 	const searchParams = useSearchParams();
@@ -73,7 +77,7 @@ export function ResetPasswordForm() {
 					Your password has been reset successfully.
 				</p>
 				<Button className="w-full" asChild>
-					<a href="/auth/sign-in">Sign In</a>
+					<Link href="/auth/sign-in">Sign In</Link>
 				</Button>
 			</div>
 		);
@@ -120,9 +124,7 @@ export function ResetPasswordForm() {
 									</span>
 								</Button>
 							</div>
-							{fieldState.invalid && (
-								<FieldError errors={[fieldState.error]} />
-							)}
+							{fieldState.invalid && <FieldError errors={[fieldState.error]} />}
 						</Field>
 					)}
 				/>
@@ -142,9 +144,7 @@ export function ResetPasswordForm() {
 								autoComplete="new-password"
 								disabled={isLoading}
 							/>
-							{fieldState.invalid && (
-								<FieldError errors={[fieldState.error]} />
-							)}
+							{fieldState.invalid && <FieldError errors={[fieldState.error]} />}
 						</Field>
 					)}
 				/>
