@@ -1,5 +1,5 @@
 import { Text, Button, Section, Link } from "@react-email/components";
-import { EmailLayout } from "./layout";
+import { EmailLayout } from "@/components/emails/layout";
 import {
 	heading,
 	paragraph,
@@ -7,7 +7,7 @@ import {
 	primaryButton,
 	linkStyle,
 	colors,
-} from "./theme";
+} from "@/components/emails/theme";
 
 interface VerificationEmailProps {
 	firstName?: string;
@@ -52,9 +52,14 @@ const VerificationEmail = ({
 	);
 };
 
-VerificationEmail.PreviewProps = {
+const VerificationEmailComponent =
+	VerificationEmail as typeof VerificationEmail & {
+		PreviewProps?: VerificationEmailProps;
+	};
+
+VerificationEmailComponent.PreviewProps = {
 	firstName: "Sarah",
 	verificationUrl: "https://anaqa.com/auth/verify-email?token=abc123xyz789",
-} as VerificationEmailProps;
+};
 
-export default VerificationEmail;
+export default VerificationEmailComponent;

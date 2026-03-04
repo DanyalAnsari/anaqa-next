@@ -9,7 +9,7 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 
-import { ForgotPasswordForm } from "../_components";
+import { ForgotPasswordForm } from "@/app/auth/_components";
 
 export default function ForgotPasswordPage() {
 	return (

@@ -1,6 +1,11 @@
 import { Text, Section } from "@react-email/components";
-import { EmailLayout } from "./layout";
-import { heading, paragraph, alertBox, alertText } from "./theme";
+import { EmailLayout } from "@/components/emails/layout";
+import {
+	heading,
+	paragraph,
+	alertBox,
+	alertText,
+} from "@/components/emails/theme";
 
 interface PasswordChangedEmailProps {
 	firstName?: string;
@@ -33,8 +38,13 @@ const PasswordChangedEmail = ({
 	);
 };
 
-PasswordChangedEmail.PreviewProps = {
-	firstName: "Sarah",
-} as PasswordChangedEmailProps;
+const PasswordChangedEmailComponent =
+	PasswordChangedEmail as typeof PasswordChangedEmail & {
+		PreviewProps?: PasswordChangedEmailProps;
+	};
 
-export default PasswordChangedEmail;
+PasswordChangedEmailComponent.PreviewProps = {
+	firstName: "Sarah",
+};
+
+export default PasswordChangedEmailComponent;

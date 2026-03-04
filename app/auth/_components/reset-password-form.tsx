@@ -30,14 +30,16 @@ export function ResetPasswordForm() {
 		defaultValues: { password: "", confirmPassword: "" },
 	});
 
+	const { setError } = form;
+
 	useEffect(() => {
 		if (!token) {
-			form.setError("password", {
+			setError("password", {
 				type: "manual",
 				message: "Missing reset token. Please use the link from your email.",
 			});
 		}
-	}, [token, form]);
+	}, [token, setError]);
 
 	async function onSubmit(data: ResetPasswordInput) {
 		if (!token) {
@@ -59,7 +61,8 @@ export function ResetPasswordForm() {
 
 			setIsSuccess(true);
 			toast.success("Password reset successfully!");
-		} catch {
+		} catch (err) {
+			console.error("Password reset error:", err);
 			toast.error("Failed to reset password");
 		} finally {
 			setIsLoading(false);
@@ -119,9 +122,6 @@ export function ResetPasswordForm() {
 									{showPassword ?
 										<EyeOff className="h-4 w-4 text-muted-foreground" />
 									:	<Eye className="h-4 w-4 text-muted-foreground" />}
-									<span className="sr-only">
-										{showPassword ? "Hide password" : "Show password"}
-									</span>
 								</Button>
 							</div>
 							{fieldState.invalid && <FieldError errors={[fieldState.error]} />}

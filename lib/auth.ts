@@ -1,9 +1,9 @@
 import { betterAuth } from "better-auth";
 import { nextCookies } from "better-auth/next-js";
+import { admin } from "better-auth/plugins";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "@/database";
 import schema from "@/database/schemas";
-import { emailService } from "@/services/email.service";
 
 export const auth = betterAuth({
 	database: drizzleAdapter(db, {
@@ -14,7 +14,8 @@ export const auth = betterAuth({
 		enabled: true,
 		requireEmailVerification: true,
 		sendResetPassword: async ({ user, url }, request) => {
-			void emailService.sendPasswordResetEmail({
+			const { emailService } = await import("@/services/email.service");
+			await emailService.sendPasswordResetEmail({
 				user,
 				url,
 			});
@@ -22,14 +23,20 @@ export const auth = betterAuth({
 		onPasswordReset: async ({ user }, request) => {
 			// your logic here
 			console.log(`Password for user ${user.email} has been reset.`);
+			const { emailService } = await import("@/services/email.service");
+			await emailService.sendPasswordChangedEmail(
+				user.email,
+				user.name.split(" ")[0],
+			);
 		},
 	},
 	emailVerification: {
 		sendVerificationEmail: async ({ user, url, token }, request) => {
-			void emailService.sendVerificationEmail({ user, url });
+			const { emailService } = await import("@/services/email.service");
+			await emailService.sendVerificationEmail({ user, url });
 		},
 		autoSignInAfterVerification: true,
 		sendOnSignIn: true,
 	},
-	plugins: [nextCookies()],
+	plugins: [admin(), nextCookies()],
 });

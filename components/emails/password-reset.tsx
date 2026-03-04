@@ -1,5 +1,5 @@
 import { Text, Button, Section, Link } from "@react-email/components";
-import { EmailLayout } from "./layout";
+import { EmailLayout } from "@/components/emails/layout";
 import {
 	heading,
 	paragraph,
@@ -8,7 +8,7 @@ import {
 	linkStyle,
 	alertBox,
 	alertText,
-} from "./theme";
+} from "@/components/emails/theme";
 
 interface PasswordResetEmailProps {
 	firstName?: string;
@@ -62,9 +62,14 @@ const PasswordResetEmail = ({
 	);
 };
 
-PasswordResetEmail.PreviewProps = {
+const PasswordResetEmailComponent =
+	PasswordResetEmail as typeof PasswordResetEmail & {
+		PreviewProps?: PasswordResetEmailProps;
+	};
+
+PasswordResetEmailComponent.PreviewProps = {
 	firstName: "Sarah",
 	resetUrl: "https://anaqa.com/reset-password?token=xyz789abc123",
-} as PasswordResetEmailProps;
+};
 
-export default PasswordResetEmail;
+export default PasswordResetEmailComponent;

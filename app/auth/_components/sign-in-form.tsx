@@ -39,9 +39,8 @@ export function SignInForm() {
 					await authClient.sendVerificationEmail({
 						email: data.email,
 					});
-					router.push(
-						`/auth/verify-email?email=${encodeURIComponent(data.email)}`,
-					);
+					sessionStorage.setItem("pendingVerificationEmail", data.email);
+					router.push("/auth/verify-email");
 					return;
 				}
 				toast.error(error.message ?? "Failed to sign in");

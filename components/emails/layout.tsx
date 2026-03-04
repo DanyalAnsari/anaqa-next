@@ -9,7 +9,7 @@ import {
 	Link,
 	Preview,
 } from "@react-email/components";
-import { colors, fonts } from "./theme";
+import { colors, fonts } from "@/components/emails/theme";
 
 interface EmailLayoutProps {
 	preview?: string;

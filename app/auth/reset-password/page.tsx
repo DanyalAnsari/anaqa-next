@@ -9,7 +9,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { ResetPasswordForm } from "../_components";
+import { ResetPasswordForm } from "@/app/auth/_components";
 
 function ResetPasswordFormFallback() {
 	return (
@@ -33,9 +33,7 @@ export default function ResetPasswordPage() {
 			<Card className="border-none shadow-none bg-transparent">
 				<CardHeader className="text-center px-0">
 					<CardTitle className="text-2xl font-medium">New Password</CardTitle>
-					<CardDescription>
-						Enter your new password below
-					</CardDescription>
+					<CardDescription>Enter your new password below</CardDescription>
 				</CardHeader>
 
 				<CardContent className="px-0">

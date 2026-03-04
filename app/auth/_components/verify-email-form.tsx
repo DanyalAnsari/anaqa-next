@@ -21,13 +21,10 @@ import {
 import { Field, FieldLabel, FieldError } from "@/components/ui/field";
 
 import { authClient } from "@/lib/auth-client";
-import { z } from "zod";
-
-const resendVerificationSchema = z.object({
-	email: z.string().email("Please enter a valid email address"),
-});
-
-type ResendVerificationInput = z.infer<typeof resendVerificationSchema>;
+import {
+	resendVerificationSchema,
+	type ResendVerificationInput,
+} from "@/lib/validations";
 
 type VerifyState = "waiting" | "verifying" | "success" | "error";
 
@@ -138,7 +135,7 @@ export function VerifyEmailForm({
 							Your account is now fully activated. You can sign in.
 						</p>
 						<Button className="w-full" asChild>
-							<Link href="/"> Home</Link>
+							<Link href="/auth/sign-in">Sign In</Link>
 						</Button>
 					</CardContent>
 				</Card>

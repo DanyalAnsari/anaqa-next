@@ -13,7 +13,10 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Field, FieldLabel, FieldError } from "@/components/ui/field";
 
 import { authClient } from "@/lib/auth-client";
-import { forgotPasswordSchema, type ForgotPasswordInput } from "@/lib/validations";
+import {
+	forgotPasswordSchema,
+	type ForgotPasswordInput,
+} from "@/lib/validations";
 
 export function ForgotPasswordForm() {
 	const [isLoading, setIsLoading] = useState(false);
@@ -30,28 +33,23 @@ export function ForgotPasswordForm() {
 		setIsLoading(true);
 		setError(null);
 		try {
-			const { error } = await authClient.requestPasswordReset({
+			const { error: apiError } = await authClient.requestPasswordReset({
 				email: data.email,
 				redirectTo: "/auth/reset-password",
 			});
 
-			if (error) {
-				setError(error.message ?? "Failed to send reset email");
-				toast.error(error.message ?? "Failed to send reset email");
-				return;
+			if (apiError) {
+				console.error("Password reset error:", apiError);
 			}
-
+		} catch (err) {
+			console.error("Password reset exception:", err);
+		} finally {
+			setIsLoading(false);
 			setSentEmail(data.email);
 			setEmailSent(true);
 			toast.success("Reset link sent!", {
-				description: "Check your email for instructions.",
+				description: "If an account exists, check your email for instructions.",
 			});
-		} catch {
-			const errMsg = "Failed to send reset email";
-			setError(errMsg);
-			toast.error(errMsg);
-		} finally {
-			setIsLoading(false);
 		}
 	}
 
@@ -116,19 +114,12 @@ export function ForgotPasswordForm() {
 								autoComplete="email"
 								disabled={isLoading}
 							/>
-							{fieldState.invalid && (
-								<FieldError errors={[fieldState.error]} />
-							)}
+							{fieldState.invalid && <FieldError errors={[fieldState.error]} />}
 						</Field>
 					)}
 				/>
 
-				<Button
-					type="submit"
-					className="w-full"
-					size="lg"
-					disabled={isLoading}
-				>
+				<Button type="submit" className="w-full" size="lg" disabled={isLoading}>
 					{isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
 					Send Reset Link
 				</Button>

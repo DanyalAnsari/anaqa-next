@@ -56,7 +56,8 @@ export async function sendEmail(options: SendMailOptions): Promise<void> {
 	});
 
 	if (process.env.NODE_ENV === "development") {
-		console.log(`✉️  Email sent: ${info.messageId} → ${options.to}`);
+		const recips = Array.isArray(options.to) ? options.to.length : 1;
+		console.log(`✉️  Email sent: ${info.messageId} → ${recips} recipient(s)`);
 	}
 }
 
@@ -65,8 +66,11 @@ export async function verifyEmailConnection(): Promise<boolean> {
 		await transporter.verify();
 		console.log("✅ Email transporter connected successfully");
 		return true;
-	} catch (error) {
-		console.error("❌ Email transporter connection failed:", error);
+	} catch (error: any) {
+		console.error(
+			"❌ Email transporter connection failed:",
+			error?.message || "Unknown error",
+		);
 		return false;
 	}
 }

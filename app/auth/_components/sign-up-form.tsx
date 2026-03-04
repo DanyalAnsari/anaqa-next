@@ -47,16 +47,16 @@ export function SignUpForm() {
 						toast.success("Account created!", {
 							description: "Please check your email to verify your account.",
 						});
-						router.push(
-							`/auth/verify-email?email=${encodeURIComponent(data.email)}`,
-						);
+						sessionStorage.setItem("pendingVerificationEmail", data.email);
+						router.push("/auth/verify-email");
 					},
 					onError: ({ error }) => {
-						toast.error(error?.message);
+						toast.error(error?.message || "An unexpected error occurred");
 					},
 				},
 			});
 		} catch (error) {
+			console.error("Sign up error:", error);
 			toast.error("Failed to create account");
 		} finally {
 			setIsLoading(false);

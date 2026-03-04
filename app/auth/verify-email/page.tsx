@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { VerifyEmailForm } from "../_components/verify-email-form";
+import { VerifyEmailForm } from "@/app/auth/_components/verify-email-form";
 import { Loader2 } from "lucide-react";
 
 export default async function VerifyEmailPage({
