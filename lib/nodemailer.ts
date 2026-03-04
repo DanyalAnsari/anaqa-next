@@ -1,6 +1,5 @@
-import nodemailer from "nodemailer";
-
-const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, EMAIL_FROM } = process.env;
+import "server-only";
+import nodemailer, { type Transporter } from "nodemailer";
 
 export interface SendMailOptions {
 	to: string | string[];
@@ -9,31 +8,65 @@ export interface SendMailOptions {
 	text?: string;
 }
 
-export const transporter = nodemailer.createTransport({
-	host: SMTP_HOST!,
-	port: Number(SMTP_PORT),
-	secure: Number(SMTP_PORT) === 465,
-	auth: {
-		user: SMTP_USER!,
-		pass: SMTP_PASS!,
-	},
-});
+// Singleton (survives Next.js HMR in dev)
 
-export const sendMail = async (options: SendMailOptions): Promise<void> => {
-	await transporter.sendMail({
-		from: EMAIL_FROM,
+const globalForEmail = globalThis as unknown as {
+	emailTransporter: Transporter | undefined;
+};
+
+function createTransporter(): Transporter {
+	const host = process.env.SMTP_HOST;
+	const port = Number(process.env.SMTP_PORT) || 587;
+	const user = process.env.SMTP_USER;
+	const pass = process.env.SMTP_PASS;
+
+	if (!host || !user || !pass) {
+		throw new Error(
+			"Missing SMTP configuration. Set SMTP_HOST, SMTP_USER, and SMTP_PASS in your .env.local",
+		);
+	}
+
+	return nodemailer.createTransport({
+		host,
+		port,
+		secure: port === 465,
+		auth: { user, pass },
+		tls: {
+			rejectUnauthorized: process.env.NODE_ENV === "production",
+		},
+	});
+}
+
+export const transporter =
+	globalForEmail.emailTransporter ?? createTransporter();
+
+if (process.env.NODE_ENV !== "production") {
+	globalForEmail.emailTransporter = transporter;
+}
+
+export async function sendEmail(options: SendMailOptions): Promise<void> {
+	const from = process.env.EMAIL_FROM || "Anāqa <noreply@anaqa.com>";
+
+	const info = await transporter.sendMail({
+		from,
 		to: options.to,
 		subject: options.subject,
 		html: options.html,
 		text: options.text,
 	});
-};
 
-export const verifyConnection = async (): Promise<boolean> => {
+	if (process.env.NODE_ENV === "development") {
+		console.log(`✉️  Email sent: ${info.messageId} → ${options.to}`);
+	}
+}
+
+export async function verifyEmailConnection(): Promise<boolean> {
 	try {
 		await transporter.verify();
+		console.log("✅ Email transporter connected successfully");
 		return true;
-	} catch {
+	} catch (error) {
+		console.error("❌ Email transporter connection failed:", error);
 		return false;
 	}
-};
+}
