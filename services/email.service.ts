@@ -8,6 +8,7 @@ import { sendEmail } from "@/lib/nodemailer";
 import VerificationEmail from "@/components/emails/verification-mail";
 import PasswordResetEmail from "@/components/emails/password-reset";
 import PasswordChangedEmail from "@/components/emails/password-change";
+import { User } from "better-auth";
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
@@ -24,42 +25,44 @@ async function renderTemplate(
 // ─── Types ──────────────────────────────────────────────────────────────────
 
 interface TokenEmailData {
-	email: string;
-	token: string;
-	firstName?: string;
+	user: User;
+	token?: string;
+	url: string;
 }
 
 export const emailService = {
-	sendVerificationEmail: async (data: TokenEmailData): Promise<void> => {
-		const verificationUrl = `${APP_URL}/auth/verify-email?token=${encodeURIComponent(data.token)}`;
-
+	sendVerificationEmail: async ({
+		user,
+		url,
+	}: TokenEmailData): Promise<void> => {
 		const { html, text } = await renderTemplate(
 			createElement(VerificationEmail, {
-				firstName: data.firstName,
-				verificationUrl,
+				firstName: user.name.split(" ")[0],
+				verificationUrl: url,
 			}),
 		);
 
 		await sendEmail({
-			to: data.email,
+			to: user.email,
 			subject: "Verify Your Email Address",
 			html,
 			text,
 		});
 	},
 
-	sendPasswordResetEmail: async (data: TokenEmailData): Promise<void> => {
-		const resetUrl = `${APP_URL}/reset-password?token=${encodeURIComponent(data.token)}`;
-
+	sendPasswordResetEmail: async ({
+		user,
+		url,
+	}: TokenEmailData): Promise<void> => {
 		const { html, text } = await renderTemplate(
 			createElement(PasswordResetEmail, {
-				firstName: data.firstName,
-				resetUrl,
+				firstName: user.name.split(" ")[0],
+				resetUrl: url,
 			}),
 		);
 
 		await sendEmail({
-			to: data.email,
+			to: user.email,
 			subject: "Reset Your Password",
 			html,
 			text,
