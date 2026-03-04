@@ -1,22 +1,23 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { Loader2, Eye, EyeOff } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-
 import { Field, FieldLabel, FieldError } from "@/components/ui/field";
-import Link from "next/link";
+
 import { LoginInput, loginSchema } from "@/lib/validations";
-import { loginWithEmail } from "../actions";
+import { authClient } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
 
 export function SignInForm() {
-	const [showPassword, setShowPassword] = useState(false);
+	const router = useRouter();
 	const [isLoading, setIsLoading] = useState(false);
+	const [showPassword, setShowPassword] = useState(false);
 
 	const form = useForm<LoginInput>({
 		resolver: zodResolver(loginSchema),
@@ -27,31 +28,36 @@ export function SignInForm() {
 	async function onSubmit(data: LoginInput) {
 		setIsLoading(true);
 		try {
-			const result = await loginWithEmail({
+			const { data: authData, error } = await authClient.signIn.email({
 				email: data.email,
 				password: data.password,
+				callbackURL: "/",
 			});
 
-			if (result.success) {
-				const userName = result.data?.user?.name?.trim();
-				toast.success(userName ? `Welcome back, ${userName}!` : "Welcome back!");
-			} else {
-				toast.error(result.error ?? "Failed to sign in");
+			if (error) {
+				if (error.code === "EMAIL_NOT_VERIFIED") {
+					await authClient.sendVerificationEmail({
+						email: data.email,
+					});
+					sessionStorage.setItem("pendingVerificationEmail", data.email);
+					router.push("/auth/verify-email");
+					return;
+				}
+				toast.error(error.message ?? "Failed to sign in");
+				return;
 			}
+			const userName = authData?.user?.name?.trim();
+			toast.success(userName ? `Welcome back, ${userName}!` : "Welcome back!");
 		} catch (error) {
 			toast.error("Failed to sign in");
 		} finally {
 			setIsLoading(false);
-			form.reset();
+			form.resetField("password");
 		}
 	}
 
 	return (
-		<form
-			onSubmit={form.handleSubmit(onSubmit)}
-			className="space-y-4"
-			noValidate
-		>
+		<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
 			<Controller
 				name="email"
 				control={form.control}
