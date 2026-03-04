@@ -5,7 +5,7 @@ import { auth } from "@/lib/auth";
 import { APIError } from "better-auth";
 import { headers } from "next/headers";
 
-export const registerWithEmail = async ({
+export const registerUser = async ({
 	email,
 	password,
 	name,
@@ -37,7 +37,7 @@ export const loginWithEmail = async ({ email, password }: LoginInput) => {
 				password,
 			},
 
-			 headers: await headers(),
+			headers: await headers(),
 		});
 
 		return { success: true, data: response };
