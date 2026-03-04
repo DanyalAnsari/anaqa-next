@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 import { Loader2, Eye, EyeOff } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -19,8 +20,9 @@ import { registerSchema, type RegisterInput } from "@/lib/validations";
 import { authClient } from "@/lib/auth-client";
 
 export function SignUpForm() {
-	const [showPassword, setShowPassword] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
+	const [showPassword, setShowPassword] = useState(false);
+	const router = useRouter();
 
 	const form = useForm<RegisterInput>({
 		resolver: zodResolver(registerSchema),
@@ -45,6 +47,7 @@ export function SignUpForm() {
 						toast.success("Account created!", {
 							description: "Please check your email to verify your account.",
 						});
+						router.push(`/auth/verify-email?email=${encodeURIComponent(data.email)}`);
 					},
 					onError: ({ error }) => {
 						toast.error(error?.message);
@@ -55,6 +58,8 @@ export function SignUpForm() {
 			toast.error("Failed to create account");
 		} finally {
 			setIsLoading(false);
+			form.resetField("password");
+			form.resetField("confirmPassword");
 		}
 	}
 
