@@ -11,7 +11,12 @@
       "mcp__next-devtools__init",
       "mcp__next-devtools__nextjs_call",
       "WebSearch",
-      "WebFetch(domain:www.better-auth.com)"
+      "WebFetch(domain:www.better-auth.com)",
+      "mcp__better-auth__search-better-auth-docs",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git reset:*)",
+      "Bash(git status:*)"
     ]
   },
   "enableAllProjectMcpServers": true,
