@@ -1,24 +1,23 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { Loader2, Eye, EyeOff } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-
 import { Field, FieldLabel, FieldError } from "@/components/ui/field";
-import Link from "next/link";
+
 import { LoginInput, loginSchema } from "@/lib/validations";
 import { authClient } from "@/lib/auth-client";
 import { useRouter } from "next/navigation";
 
 export function SignInForm() {
 	const router = useRouter();
-	const [showPassword, setShowPassword] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
+	const [showPassword, setShowPassword] = useState(false);
 
 	const form = useForm<LoginInput>({
 		resolver: zodResolver(loginSchema),
@@ -32,10 +31,17 @@ export function SignInForm() {
 			const { data: authData, error } = await authClient.signIn.email({
 				email: data.email,
 				password: data.password,
+				callbackURL: "/",
 			});
+
 			if (error) {
 				if (error.code === "EMAIL_NOT_VERIFIED") {
-					router.push(`/auth/verify-email?email=${encodeURIComponent(data.email)}`);
+					await authClient.sendVerificationEmail({
+						email: data.email,
+					});
+					router.push(
+						`/auth/verify-email?email=${encodeURIComponent(data.email)}`,
+					);
 					return;
 				}
 				toast.error(error.message ?? "Failed to sign in");
@@ -52,11 +58,7 @@ export function SignInForm() {
 	}
 
 	return (
-		<form
-			onSubmit={form.handleSubmit(onSubmit)}
-			className="space-y-4"
-			noValidate
-		>
+		<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
 			<Controller
 				name="email"
 				control={form.control}

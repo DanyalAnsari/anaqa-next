@@ -20,9 +20,9 @@ import { registerSchema, type RegisterInput } from "@/lib/validations";
 import { authClient } from "@/lib/auth-client";
 
 export function SignUpForm() {
+	const router = useRouter();
 	const [isLoading, setIsLoading] = useState(false);
 	const [showPassword, setShowPassword] = useState(false);
-	const router = useRouter();
 
 	const form = useForm<RegisterInput>({
 		resolver: zodResolver(registerSchema),
@@ -47,7 +47,9 @@ export function SignUpForm() {
 						toast.success("Account created!", {
 							description: "Please check your email to verify your account.",
 						});
-						router.push(`/auth/verify-email?email=${encodeURIComponent(data.email)}`);
+						router.push(
+							`/auth/verify-email?email=${encodeURIComponent(data.email)}`,
+						);
 					},
 					onError: ({ error }) => {
 						toast.error(error?.message);
