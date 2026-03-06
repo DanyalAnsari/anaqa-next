@@ -1,6 +1,6 @@
 import { betterAuth } from "better-auth";
 import { nextCookies } from "better-auth/next-js";
-import { admin } from "better-auth/plugins";
+import { admin, emailOTP } from "better-auth/plugins";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "@/database";
 import schema from "@/database/schemas";
@@ -21,22 +21,28 @@ export const auth = betterAuth({
 			});
 		},
 		onPasswordReset: async ({ user }, request) => {
-			// your logic here
-			console.log(`Password for user ${user.email} has been reset.`);
 			const { emailService } = await import("@/services/email.service");
-			await emailService.sendPasswordChangedEmail(
+			emailService.sendPasswordChangedEmail(
 				user.email,
 				user.name.split(" ")[0],
 			);
 		},
 	},
 	emailVerification: {
-		sendVerificationEmail: async ({ user, url, token }, request) => {
-			const { emailService } = await import("@/services/email.service");
-			await emailService.sendVerificationEmail({ user, url });
-		},
 		autoSignInAfterVerification: true,
 		sendOnSignIn: true,
 	},
-	plugins: [admin(), nextCookies()],
+	plugins: [
+		emailOTP({
+			overrideDefaultEmailVerification: true,
+			async sendVerificationOTP({ email, otp, type }) {
+				if (type === "email-verification") {
+					const { emailService } = await import("@/services/email.service");
+					emailService.sendVerificationOtp(email, otp);
+				}
+			},
+		}),
+		admin(),
+		nextCookies(),
+	],
 });
