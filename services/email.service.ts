@@ -31,20 +31,14 @@ interface TokenEmailData {
 }
 
 export const emailService = {
-	sendVerificationEmail: async ({
-		user,
-		url,
-	}: TokenEmailData): Promise<void> => {
+	sendVerificationOtp: async (email: string, otp: string): Promise<void> => {
 		const { html, text } = await renderTemplate(
-			createElement(VerificationEmail, {
-				firstName: user.name.split(" ")[0],
-				verificationUrl: url,
-			}),
+			createElement(VerificationEmail, { otp }),
 		);
 
 		await sendEmail({
-			to: user.email,
-			subject: "Verify Your Email Address",
+			to: email,
+			subject: "Your Verification Code – Anāqa",
 			html,
 			text,
 		});
