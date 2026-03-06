@@ -99,6 +99,16 @@ export const resendVerificationSchema = z.object({
 	email: emailSchema,
 });
 
+export const otpSchema = z
+	.string()
+	.length(6, "Code must be exactly 6 digits")
+	.regex(/^\d+$/, "Code must contain only digits");
+
+export const verifyOtpSchema = z.object({
+	email: emailSchema,
+	otp: otpSchema,
+});
+
 export const updateProfileSchema = z.object({
 	firstName: z
 		.string()
@@ -273,6 +283,8 @@ export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
 export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
 export type ResendVerificationInput = z.infer<typeof resendVerificationSchema>;
+export type OtpInput = z.infer<typeof otpSchema>;
+export type VerifyOtpInput = z.infer<typeof verifyOtpSchema>;
 
 export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
 export type AddressInput = z.infer<typeof addressSchema>;

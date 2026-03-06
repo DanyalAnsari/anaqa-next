@@ -48,17 +48,20 @@ export function StoreHeader() {
 	const navigate = useRouter();
 	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+	const { data: session } = authClient.useSession();
+
 	const cartItemCount = 0;
 
 	const handleSignOut = async () => {
 		try {
-			const response = await authClient.signOut();
-			if (response.data?.success) {
+			const { data, error } = await authClient.signOut();
+
+			if (data?.success) {
 				toast.success("Logged out successfully");
-				navigate.push("/");
+				navigate.replace("/");
 			}
-			if (response.error) {
-				toast.error(response.error.message);
+			if (error) {
+				toast.error(error.message);
 			}
 		} catch (error) {
 			toast.error("Something went wrong");
@@ -113,8 +116,19 @@ export function StoreHeader() {
 									</Link>
 								))}
 								<div className="h-px bg-border my-4" />
-								{
+								{session?.user ?
 									<>
+										<button
+											onClick={() => {
+												setMobileMenuOpen(false);
+												handleSignOut();
+											}}
+											className="text-lg font-medium py-2 text-muted-foreground hover:text-foreground transition-colors text-left"
+										>
+											Sign Out
+										</button>
+									</>
+								:	<>
 										<Link
 											href="/auth/sign-in"
 											onClick={() => setMobileMenuOpen(false)}
@@ -177,11 +191,39 @@ export function StoreHeader() {
 
 						{/* User Menu */}
 
-						<Link href="/auth/sign-in" className="hidden sm:block">
-							<Button variant="ghost" size="icon" aria-label="Sign in">
-								<User className="h-5 w-5" />
-							</Button>
-						</Link>
+						{session?.user ?
+							<DropdownMenu>
+								<DropdownMenuTrigger asChild>
+									<Button variant="ghost" size="icon" aria-label="Account menu">
+										<User className="h-5 w-5" />
+									</Button>
+								</DropdownMenuTrigger>
+								<DropdownMenuContent align="end" className="w-56">
+									<DropdownMenuLabel>
+										<div className="flex flex-col">
+											<span>{session?.user?.email}</span>
+											<span className="text-xs font-normal text-muted-foreground capitalize">
+												{session?.user?.role}
+											</span>
+										</div>
+									</DropdownMenuLabel>
+									<DropdownMenuSeparator />
+
+									<DropdownMenuItem
+										onClick={handleSignOut}
+										className="cursor-pointer text-destructive focus:text-destructive"
+									>
+										<LogOut className="mr-2 h-4 w-4" />
+										Sign Out
+									</DropdownMenuItem>
+								</DropdownMenuContent>
+							</DropdownMenu>
+						:	<Link href="/auth/sign-in" className="hidden sm:block">
+								<Button variant="ghost" size="icon" aria-label="Sign in">
+									<User className="h-5 w-5" />
+								</Button>
+							</Link>
+						}
 
 						{/* Cart */}
 						<Button
