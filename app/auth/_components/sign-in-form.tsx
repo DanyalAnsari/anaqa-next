@@ -36,8 +36,9 @@ export function SignInForm() {
 
 			if (error) {
 				if (error.code === "EMAIL_NOT_VERIFIED") {
-					await authClient.sendVerificationEmail({
+					await authClient.emailOtp.sendVerificationOtp({
 						email: data.email,
+						type: "email-verification",
 					});
 					sessionStorage.setItem("pendingVerificationEmail", data.email);
 					router.push("/auth/verify-email");
