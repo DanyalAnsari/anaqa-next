@@ -3,20 +3,18 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LucideIcon } from "lucide-react";
+import { User, MapPin, ShoppingBag, Bell, Heart } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 
-interface AccountNavItem {
-	name: string;
-	href: string;
-	icon: LucideIcon;
-}
+export const accountNavigation = [
+	{ name: "Profile", href: "/account/profile", icon: User },
+	{ name: "Addresses", href: "/account/addresses", icon: MapPin },
+	{ name: "Orders", href: "/account/orders", icon: ShoppingBag },
+	{ name: "Wishlist", href: "/account/wishlist", icon: Heart },
+	{ name: "Waitlist", href: "/account/waitlist", icon: Bell },
+];
 
-interface AccountNavProps {
-	items: AccountNavItem[];
-}
-
-export function AccountNav({ items }: AccountNavProps) {
+export function AccountNav() {
 	const pathname = usePathname();
 
 	return (
@@ -25,7 +23,7 @@ export function AccountNav({ items }: AccountNavProps) {
 			role="navigation"
 			aria-label="Account navigation"
 		>
-			{items.map((item) => {
+			{accountNavigation.map((item) => {
 				const Icon = item.icon;
 				const isActive = pathname === item.href;
 				return (
