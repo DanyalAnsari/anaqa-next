@@ -15,10 +15,12 @@ export const auth = betterAuth({
 			phone: {
 				type: "string",
 				required: false,
-				
 			},
+			avatarFileId: { type: "string", required: false },
+			avatarFilePath: { type: "string", required: false },
 		},
 	},
+
 	emailAndPassword: {
 		enabled: true,
 		requireEmailVerification: true,

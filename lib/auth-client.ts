@@ -1,7 +1,16 @@
 import { createAuthClient } from "better-auth/react";
-import { adminClient, emailOTPClient } from "better-auth/client/plugins";
+import {
+	adminClient,
+	emailOTPClient,
+	inferAdditionalFields,
+} from "better-auth/client/plugins";
+import { auth } from "./auth";
 
 export const authClient = createAuthClient({
 	baseURL: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
-	plugins: [adminClient(), emailOTPClient()],
+	plugins: [
+		inferAdditionalFields<typeof auth>(),
+		adminClient(),
+		emailOTPClient(),
+	],
 });
