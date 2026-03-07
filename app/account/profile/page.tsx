@@ -1,7 +1,8 @@
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { Separator } from "@/components/ui/separator";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar } from "@/components/ui/avatar";
+import { AvatarImage } from "@/components/ui/image";
 import { Badge } from "@/components/ui/badge";
 import {
 	Card,
@@ -12,7 +13,7 @@ import {
 } from "@/components/ui/card";
 
 import { ProfileForm } from "./_components/profile-form";
-import { SecuritySettings } from "./_components/security-settin";
+import { SecuritySettings } from "./_components/security-setting";
 import { DangerZone } from "./_components/danger-zone";
 import { AvatarUpload } from "./_components/avatar-upload";
 
@@ -28,6 +29,7 @@ export default async function ProfilePage() {
 	}
 
 	const displayName = user.name || user.email || "User";
+
 	const getInitials = () => {
 		if (user.name) {
 			const names = user.name.split(" ");
@@ -37,6 +39,9 @@ export default async function ProfilePage() {
 		}
 		return "U";
 	};
+
+	const initials = getInitials();
+	const hasAvatar = !!(user.image || user.avatarFilePath);
 
 	return (
 		<div className="space-y-8 animate-in fade-in duration-500">
@@ -56,12 +61,14 @@ export default async function ProfilePage() {
 					<div className="flex items-center gap-6">
 						<div className="relative">
 							<Avatar className="h-24 w-24">
-								<AvatarImage src={user.image ?? undefined} alt={displayName} />
-								<AvatarFallback className="text-2xl">
-									{getInitials()}
-								</AvatarFallback>
+								<AvatarImage
+									src={user.image}
+									size={96}
+									initials={initials}
+									alt={displayName}
+								/>
 							</Avatar>
-							<AvatarUpload />
+							<AvatarUpload hasAvatar={hasAvatar} initials={initials} />
 						</div>
 						<div className="space-y-1">
 							<h2 className="text-2xl font-semibold">{displayName}</h2>
