@@ -21,52 +21,62 @@ import {
 } from "@/lib/validations";
 import { authClient } from "@/lib/auth-client";
 
-interface ProfileFormProps {
-	user: any;
+interface User {
+	name: string;
+	email: string;
+	phone?: string | null;
 }
 
-export function ProfileForm({ user }: ProfileFormProps) {
+interface ProfileFormProps {
+	user: User;
+}
+
+function parseName(name: string) {
+	const parts = name.trim().split(" ");
+	return {
+		firstName: parts[0] || "",
+		lastName: parts.slice(1).join(" ") || "",
+	};
+}
+
+export function ProfileForm({ user: initialUser }: ProfileFormProps) {
 	const [isEditing, setIsEditing] = useState(false);
-	const [isLoading, setIsLoading] = useState(false);
+	const { data: session } = authClient.useSession();
+	const user = session?.user ?? initialUser;
+	const { firstName, lastName } = parseName(user.name);
 
 	const form = useForm<UpdateProfileInput>({
 		resolver: zodResolver(updateProfileSchema),
-		mode: "onBlur",
+		mode: "onChange",
 		defaultValues: {
-			firstName: user.firstName ?? "",
-			lastName: user.lastName ?? "",
+			firstName,
+			lastName,
 			phone: user.phone ?? "",
 		},
 	});
 
 	async function onSubmit({ firstName, lastName, phone }: UpdateProfileInput) {
-		setIsLoading(true);
-		try {
-			const { error } = await authClient.updateUser({
-				name: `${firstName} ${lastName}`,
-				phone: phone,
-			});
+		const name = lastName ? `${firstName} ${lastName}` : firstName;
 
-			if (error) toast.error(error.message);
-
-			toast.success("Profile updated successfully");
-			setIsEditing(false);
-			form.reset();
-		} catch (error) {
-			toast.error("Failed to update profile");
-		} finally {
-			setIsLoading(false);
-		}
+		await authClient.updateUser({
+			name,
+			phone: phone || undefined,
+			fetchOptions: {
+				onSuccess: () => {
+					toast.success("Profile updated successfully");
+					setIsEditing(false);
+				},
+				onError: (ctx) => {
+					toast.error(ctx.error.message || "Failed to update profile");
+				},
+			},
+		});
 	}
 
-	const handleCancel = () => {
-		form.reset({
-			firstName: user.firstName ?? "",
-			lastName: user.lastName ?? "",
-			phone: user.phone ?? "",
-		});
+	function handleCancel() {
+		form.reset({ firstName, lastName, phone: user.phone ?? "" });
 		setIsEditing(false);
-	};
+	}
 
 	return (
 		<div className="max-w-2xl">
@@ -100,9 +110,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
 									aria-invalid={fieldState.invalid}
 									disabled={!isEditing}
 								/>
-								{fieldState.invalid && (
-									<FieldError errors={[fieldState.error]} />
-								)}
+								{fieldState.error && <FieldError errors={[fieldState.error]} />}
 							</Field>
 						)}
 					/>
@@ -119,9 +127,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
 									aria-invalid={fieldState.invalid}
 									disabled={!isEditing}
 								/>
-								{fieldState.invalid && (
-									<FieldError errors={[fieldState.error]} />
-								)}
+								{fieldState.error && <FieldError errors={[fieldState.error]} />}
 							</Field>
 						)}
 					/>
@@ -132,7 +138,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
 					<Input
 						id="email"
 						type="email"
-						value={user.email ?? ""}
+						value={user.email}
 						disabled
 						className="bg-secondary/50"
 					/>
@@ -155,7 +161,7 @@ export function ProfileForm({ user }: ProfileFormProps) {
 								placeholder="+1 (555) 123-4567"
 								disabled={!isEditing}
 							/>
-							{fieldState.invalid && <FieldError errors={[fieldState.error]} />}
+							{fieldState.error && <FieldError errors={[fieldState.error]} />}
 						</Field>
 					)}
 				/>
@@ -164,9 +170,9 @@ export function ProfileForm({ user }: ProfileFormProps) {
 					<div className="flex gap-3">
 						<Button
 							type="submit"
-							disabled={isLoading || !form.formState.isDirty}
+							disabled={form.formState.isSubmitting || !form.formState.isDirty}
 						>
-							{isLoading ?
+							{form.formState.isSubmitting ?
 								<>
 									<Loader2 className="mr-2 h-4 w-4 animate-spin" />
 									Saving…
@@ -177,7 +183,12 @@ export function ProfileForm({ user }: ProfileFormProps) {
 								</>
 							}
 						</Button>
-						<Button type="button" variant="outline" onClick={handleCancel}>
+						<Button
+							type="button"
+							variant="outline"
+							onClick={handleCancel}
+							disabled={form.formState.isSubmitting}
+						>
 							Cancel
 						</Button>
 					</div>
