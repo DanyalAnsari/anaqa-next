@@ -1,13 +1,6 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
-} from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
 import { ArrowRight, CheckCircle, AlertCircle } from "lucide-react";
@@ -16,6 +9,7 @@ import { headers } from "next/headers";
 import { QuickLinks } from "./_components/quick-links";
 import { RecentOrders } from "./_components/recent-orders";
 import { RecentReviews } from "./_components/recent-reviews";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default async function AccountOverviewPage() {
 	const session = await auth.api.getSession({
@@ -75,98 +69,91 @@ export default async function AccountOverviewPage() {
 				</Alert>
 			)}
 
-			{/* Quick Links */}
-			<QuickLinks />
+			<Tabs defaultValue="overview" className="space-y-6">
+				<TabsList>
+					<TabsTrigger value="overview">Overview</TabsTrigger>
+					<TabsTrigger value="activity">Activity</TabsTrigger>
+				</TabsList>
 
-			{/* Recent Orders */}
-			<Card>
-				<CardHeader className="flex flex-row items-center justify-between pb-3">
-					<div>
-						<CardTitle className="text-lg">Recent Orders</CardTitle>
-						<CardDescription>Your latest order activity</CardDescription>
+				<TabsContent value="overview" className="space-y-8 focus-visible:outline-none focus-visible:ring-0">
+					{/* Quick Links */}
+					<QuickLinks />
+
+					{/* Account Information */}
+					<div className="space-y-6">
+						<div>
+							<h3 className="text-lg font-medium">Account Information</h3>
+							<p className="text-sm text-muted-foreground">Your account details and settings</p>
+						</div>
+						<Separator />
+						<dl className="grid grid-cols-1 sm:grid-cols-2 gap-6 pb-2">
+							<div className="space-y-1">
+								<dt className="text-sm font-medium text-muted-foreground">Email</dt>
+								<dd className="text-sm font-semibold">{user.email}</dd>
+							</div>
+							<div className="space-y-1">
+								<dt className="text-sm font-medium text-muted-foreground">Member Since</dt>
+								<dd className="text-sm font-semibold">
+									{user.createdAt ?
+										new Date(user.createdAt).toLocaleDateString("en-US", {
+											month: "long",
+											year: "numeric",
+										})
+									:	"—"}
+								</dd>
+							</div>
+							<div className="space-y-1">
+								<dt className="text-sm font-medium text-muted-foreground">Account Type</dt>
+								<dd className="text-sm font-semibold capitalize">
+									<Badge variant="outline">{user.role || "Customer"}</Badge>
+								</dd>
+							</div>
+							<div className="space-y-1">
+								<dt className="text-sm font-medium text-muted-foreground">Phone</dt>
+								<dd className="text-sm font-semibold">
+									{user.phone || <span className="text-muted-foreground">Not set</span>}
+								</dd>
+							</div>
+						</dl>
 					</div>
-					<Button variant="ghost" size="sm" asChild>
-						<Link href="/account/orders">
-							View All
-							<ArrowRight className="ml-2 h-4 w-4" />
-						</Link>
-					</Button>
-				</CardHeader>
-				<Separator />
-				<CardContent className="pt-6">
-					<RecentOrders userId={user.id} />
-				</CardContent>
-			</Card>
+				</TabsContent>
 
-			{/* Recent Reviews */}
-			<Card>
-				<CardHeader className="flex flex-row items-center justify-between pb-3">
-					<div>
-						<CardTitle className="text-lg">My Reviews</CardTitle>
-						<CardDescription>Your product reviews and ratings</CardDescription>
+				<TabsContent value="activity" className="space-y-8 focus-visible:outline-none focus-visible:ring-0">
+					{/* Recent Orders */}
+					<div className="space-y-6">
+						<div className="flex flex-row items-center justify-between">
+							<div>
+								<h3 className="text-lg font-medium">Recent Orders</h3>
+								<p className="text-sm text-muted-foreground">Your latest order activity</p>
+							</div>
+							<Button variant="ghost" size="sm" asChild>
+								<Link href="/account/orders">
+									View All <ArrowRight className="ml-2 h-4 w-4" />
+								</Link>
+							</Button>
+						</div>
+						<Separator />
+						<RecentOrders userId={user.id} />
 					</div>
-					<Button variant="ghost" size="sm" asChild>
-						<Link href="/account/reviews">
-							View All
-							<ArrowRight className="ml-2 h-4 w-4" />
-						</Link>
-					</Button>
-				</CardHeader>
-				<Separator />
-				<CardContent className="pt-6">
-					<RecentReviews userId={user.id} />
-				</CardContent>
-			</Card>
 
-			{/* Account Information */}
-			<Card>
-				<CardHeader>
-					<CardTitle className="text-lg">Account Information</CardTitle>
-					<CardDescription>Your account details and settings</CardDescription>
-				</CardHeader>
-				<Separator />
-				<CardContent className="pt-6">
-					<dl className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-						<div className="space-y-1">
-							<dt className="text-sm font-medium text-muted-foreground">
-								Email
-							</dt>
-							<dd className="text-sm font-semibold">{user.email}</dd>
+					{/* Recent Reviews */}
+					<div className="space-y-6">
+						<div className="flex flex-row items-center justify-between">
+							<div>
+								<h3 className="text-lg font-medium">My Reviews</h3>
+								<p className="text-sm text-muted-foreground">Your product reviews and ratings</p>
+							</div>
+							<Button variant="ghost" size="sm" asChild>
+								<Link href="/account/reviews">
+									View All <ArrowRight className="ml-2 h-4 w-4" />
+								</Link>
+							</Button>
 						</div>
-						<div className="space-y-1">
-							<dt className="text-sm font-medium text-muted-foreground">
-								Member Since
-							</dt>
-							<dd className="text-sm font-semibold">
-								{user.createdAt ?
-									new Date(user.createdAt).toLocaleDateString("en-US", {
-										month: "long",
-										year: "numeric",
-									})
-								:	"—"}
-							</dd>
-						</div>
-						<div className="space-y-1">
-							<dt className="text-sm font-medium text-muted-foreground">
-								Account Type
-							</dt>
-							<dd className="text-sm font-semibold capitalize">
-								<Badge variant="outline">{user.role || "Customer"}</Badge>
-							</dd>
-						</div>
-						<div className="space-y-1">
-							<dt className="text-sm font-medium text-muted-foreground">
-								Phone
-							</dt>
-							<dd className="text-sm font-semibold">
-								{user.phone || (
-									<span className="text-muted-foreground">Not set</span>
-								)}
-							</dd>
-						</div>
-					</dl>
-				</CardContent>
-			</Card>
+						<Separator />
+						<RecentReviews userId={user.id} />
+					</div>
+				</TabsContent>
+			</Tabs>
 		</div>
 	);
 }

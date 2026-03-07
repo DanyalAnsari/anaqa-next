@@ -8,7 +8,6 @@ import {
 	BreadcrumbPage,
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 import { ReactNode } from "react";
 
@@ -46,15 +45,13 @@ export default async function AccountLayout({
 						</BreadcrumbList>
 					</Breadcrumb>
 
-					<div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+					<div className="grid grid-cols-1 md:grid-cols-4 gap-8 lg:gap-12">
 						{/* Parallel Sidebar Slot */}
-						<aside className="lg:col-span-1">{sidebar}</aside>
+						<aside className="md:col-span-1">{sidebar}</aside>
 
 						{/* Content */}
-						<div className="lg:col-span-3">
-							<Card className="border-border">
-								<CardContent className="p-6 md:p-8">{children}</CardContent>
-							</Card>
+						<div className="md:col-span-3">
+							{children}
 						</div>
 					</div>
 				</div>
