@@ -118,6 +118,13 @@ export function StoreHeader() {
 								<div className="h-px bg-border my-4" />
 								{session?.user ?
 									<>
+										<Link
+											href="/account"
+											onClick={() => setMobileMenuOpen(false)}
+											className="text-lg font-medium py-2 text-muted-foreground hover:text-foreground transition-colors"
+										>
+											My Account
+										</Link>
 										<button
 											onClick={() => {
 												setMobileMenuOpen(false);
@@ -208,7 +215,13 @@ export function StoreHeader() {
 										</div>
 									</DropdownMenuLabel>
 									<DropdownMenuSeparator />
-
+									<DropdownMenuItem asChild>
+										<Link href="/account" className="cursor-pointer">
+											<User className="mr-2 h-4 w-4" />
+											My Account
+										</Link>
+									</DropdownMenuItem>
+									<DropdownMenuSeparator />
 									<DropdownMenuItem
 										onClick={handleSignOut}
 										className="cursor-pointer text-destructive focus:text-destructive"

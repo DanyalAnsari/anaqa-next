@@ -10,17 +10,28 @@ export const auth = betterAuth({
 		provider: "pg",
 		schema: schema,
 	}),
+	user: {
+		additionalFields: {
+			phone: {
+				type: "string",
+				required: false,
+			},
+			avatarFileId: { type: "string", required: false },
+			avatarFilePath: { type: "string", required: false },
+		},
+	},
+
 	emailAndPassword: {
 		enabled: true,
 		requireEmailVerification: true,
-		sendResetPassword: async ({ user, url }, request) => {
+		sendResetPassword: async ({ user, url }, _request) => {
 			const { emailService } = await import("@/services/email.service");
 			await emailService.sendPasswordResetEmail({
 				user,
 				url,
 			});
 		},
-		onPasswordReset: async ({ user }, request) => {
+		onPasswordReset: async ({ user }, _request) => {
 			const { emailService } = await import("@/services/email.service");
 			emailService.sendPasswordChangedEmail(
 				user.email,
