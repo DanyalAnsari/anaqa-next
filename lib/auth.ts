@@ -18,6 +18,7 @@ export const auth = betterAuth({
 			},
 			avatarFileId: { type: "string", required: false },
 			avatarFilePath: { type: "string", required: false },
+			orderUpdates: { type: "boolean", required: false, defaultValue: true },
 		},
 	},
 

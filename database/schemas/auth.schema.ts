@@ -12,11 +12,14 @@ export const user = pgTable("user", {
 		.defaultNow()
 		.$onUpdate(() => /* @__PURE__ */ new Date())
 		.notNull(),
-	role: text("role"),
+	role: text("role").default("customer"),
 	banned: boolean("banned").default(false),
 	banReason: text("ban_reason"),
 	banExpires: timestamp("ban_expires"),
 	phone: text("phone"),
+	avatarFileId: text("avatar_file_id"),
+	avatarFilePath: text("avatar_file_path"),
+	orderUpdates: boolean("order_updates").default(true),
 });
 
 export const session = pgTable(
