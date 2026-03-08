@@ -21,6 +21,7 @@ interface User {
 }
 
 function getInitials(name: string) {
+	if (!name.trim()) return "?";
 	const parts = name.split(" ");
 	return parts.length > 1 ?
 			`${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase()

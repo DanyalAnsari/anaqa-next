@@ -42,8 +42,8 @@ export default function AdminSidebar() {
 	const isActive = (href: string) =>
 		href === "/admin" ? pathname === "/admin" : pathname.startsWith(href);
 
-	const handleSignOut = () => {
-		authClient.signOut({
+	const handleSignOut = async () => {
+		await authClient.signOut({
 			fetchOptions: {
 				onSuccess: () => {
 					window.location.href = "/login";
