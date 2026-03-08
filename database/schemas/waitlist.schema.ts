@@ -8,18 +8,20 @@ import {
 } from "drizzle-orm/pg-core";
 import { user } from "./auth.schema";
 import { product } from "./product.schema";
-import { relations } from "drizzle-orm";
+import { sizeEnum } from "./enums";
 
 export const waitlist = pgTable(
 	"waitlist",
 	{
 		id: text("id").primaryKey(),
 		email: text("email").notNull(),
-		userId: text("user_id").references(() => user.id, { onDelete: "set null" }), // nullable for guests
+		userId: text("user_id").references(() => user.id, {
+			onDelete: "set null",
+		}),
 		productId: text("product_id")
 			.notNull()
 			.references(() => product.id, { onDelete: "cascade" }),
-		variantSize: text("variant_size").notNull(),
+		variantSize: sizeEnum("variant_size").notNull(),
 		notified: boolean("notified").notNull().default(false),
 		notifiedAt: timestamp("notified_at"),
 		createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -37,11 +39,3 @@ export const waitlist = pgTable(
 		),
 	],
 );
-
-export const waitlistRelations = relations(waitlist, ({ one }) => ({
-	user: one(user, { fields: [waitlist.userId], references: [user.id] }),
-	product: one(product, {
-		fields: [waitlist.productId],
-		references: [product.id],
-	}),
-}));

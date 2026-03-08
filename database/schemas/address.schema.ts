@@ -6,8 +6,16 @@ import {
 	timestamp,
 	uniqueIndex,
 } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 import { user } from "./auth.schema";
-import { relations, sql } from "drizzle-orm";
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Address
+//
+// A user may have multiple saved addresses (home, work, etc.).
+// The partial unique index on (userId) WHERE is_default = true enforces a
+// single default address at the database level.
+// ─────────────────────────────────────────────────────────────────────────────
 
 export const address = pgTable(
 	"address",
@@ -16,9 +24,8 @@ export const address = pgTable(
 		userId: text("user_id")
 			.notNull()
 			.references(() => user.id, { onDelete: "cascade" }),
-		label: text("label").notNull(),
-		name: text("name").notNull(),
-		fullName: text("full_name").notNull(),
+		label: text("label").notNull(), // "Home", "Work", etc.
+		fullName: text("full_name").notNull(), // Recipient name
 		phone: text("phone").notNull(),
 		street: text("street").notNull(),
 		city: text("city").notNull(),
@@ -34,13 +41,8 @@ export const address = pgTable(
 	},
 	(t) => [
 		index("address_user_idx").on(t.userId),
-		// At most one default address per user — enforced at DB level
 		uniqueIndex("address_one_default_per_user_uq")
 			.on(t.userId)
 			.where(sql`is_default = true`),
 	],
 );
-
-export const addressRelations = relations(address, ({ one }) => ({
-	user: one(user, { fields: [address.userId], references: [user.id] }),
-}));

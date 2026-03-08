@@ -1,7 +1,12 @@
-import { pgTable, primaryKey, text, timestamp } from "drizzle-orm/pg-core";
+import {
+	pgTable,
+	primaryKey,
+	text,
+	timestamp,
+	index,
+} from "drizzle-orm/pg-core";
 import { user } from "./auth.schema";
 import { product } from "./product.schema";
-import { relations } from "drizzle-orm";
 
 export const wishlist = pgTable(
 	"wishlist",
@@ -14,13 +19,8 @@ export const wishlist = pgTable(
 			.references(() => product.id, { onDelete: "cascade" }),
 		createdAt: timestamp("created_at").notNull().defaultNow(),
 	},
-	(t) => [primaryKey({ columns: [t.userId, t.productId] })],
+	(t) => [
+		primaryKey({ columns: [t.userId, t.productId] }),
+		index("wishlist_product_idx").on(t.productId),
+	],
 );
-
-export const wishlistRelations = relations(wishlist, ({ one }) => ({
-	user: one(user, { fields: [wishlist.userId], references: [user.id] }),
-	product: one(product, {
-		fields: [wishlist.productId],
-		references: [product.id],
-	}),
-}));

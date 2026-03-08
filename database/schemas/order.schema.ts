@@ -2,44 +2,22 @@ import {
 	index,
 	integer,
 	numeric,
-	pgEnum,
 	pgTable,
 	text,
 	timestamp,
 } from "drizzle-orm/pg-core";
 import { user } from "./auth.schema";
 import { product } from "./product.schema";
-import { relations } from "drizzle-orm";
-import { review } from "./review.schema";
-
-export const paymentMethodEnum = pgEnum("payment_method", ["card", "cod"]);
-export const paymentStatusEnum = pgEnum("payment_status", [
-	"pending",
-	"paid",
-	"failed",
-	"refunded",
-]);
-export const orderStatusEnum = pgEnum("order_status", [
-	"pending",
-	"confirmed",
-	"processing",
-	"shipped",
-	"delivered",
-	"cancelled",
-]);
+import { paymentMethodEnum, paymentStatusEnum, orderStatusEnum } from "./enums";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Shop Order
 //
-// Named shop_order to avoid collision with the SQL reserved word ORDER.
+// Named shop_order to avoid collision with SQL reserved word ORDER.
+// All pricing, shipping address, and coupon fields are intentional snapshots.
 //
-// All pricing fields, the shipping address, and coupon fields are intentional
-// snapshots — they must reflect values at the moment of purchase, never current
-// state. This is correct and expected denormalization.
-//
-// orderItem.totalPrice is also a snapshot (quantity × unitPrice at checkout).
-// Treat it as immutable after order creation.
-// ─────────────────────────────────────────────────────────────────────────────
+// CHECK constraints (total >= 0, subtotal >= 0) are in migration SQL.
+// ─────────────────────────────────────────────────────────────────��───────────
 
 export const shopOrder = pgTable(
 	"shop_order",
@@ -80,7 +58,7 @@ export const shopOrder = pgTable(
 		// Status
 		status: orderStatusEnum("status").notNull().default("pending"),
 
-		// Coupon snapshot — correct here because coupon terms can change after order
+		// Coupon snapshot
 		couponCode: text("coupon_code"),
 		couponDiscountType: text("coupon_discount_type"),
 		couponDiscountValue: numeric("coupon_discount_value", {
@@ -106,6 +84,17 @@ export const shopOrder = pgTable(
 	],
 );
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Order Item
+//
+// All fields are snapshots — immutable after order creation.
+// productId is nullable — product can be deleted, order history preserved.
+// sizeLabel (was variantName) — stores "M", "XL", etc.
+// imageUrl is a FULL resolved URL snapshot — correct, not an ImageKit filePath.
+//
+// CHECK constraint on quantity > 0 is in migration SQL.
+// ─────────────────────────────────────────────────────────────────────────────
+
 export const orderItem = pgTable(
 	"order_item",
 	{
@@ -113,25 +102,22 @@ export const orderItem = pgTable(
 		orderId: text("order_id")
 			.notNull()
 			.references(() => shopOrder.id, { onDelete: "cascade" }),
-		// Nullable — product can be deleted but the order record must be preserved
 		productId: text("product_id").references(() => product.id, {
 			onDelete: "set null",
 		}),
-		variantSku: text("variant_sku").notNull(), // snapshot — survives product deletion
-		title: text("title").notNull(), // snapshot
-		variantName: text("variant_name").notNull(), // snapshot
-		imageUrl: text("image_url"), // snapshot
+		variantSku: text("variant_sku").notNull(),
+		title: text("title").notNull(),
+		sizeLabel: text("size_label").notNull(), // "M", "XL" — snapshot
+		imageUrl: text("image_url"), // full URL snapshot
 		quantity: integer("quantity").notNull(),
-		unitPrice: numeric("unit_price", { precision: 12, scale: 2 }).notNull(), // snapshot
-		totalPrice: numeric("total_price", { precision: 12, scale: 2 }).notNull(), // snapshot: quantity × unitPrice — immutable
+		unitPrice: numeric("unit_price", { precision: 12, scale: 2 }).notNull(),
+		totalPrice: numeric("total_price", { precision: 12, scale: 2 }).notNull(),
 	},
 	(t) => [index("order_item_order_idx").on(t.orderId)],
 );
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Order Status History
-//
-// `occurredAt` avoids shadowing the Postgres built-in type name `timestamp`.
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const orderStatusHistory = pgTable(
@@ -146,32 +132,4 @@ export const orderStatusHistory = pgTable(
 		occurredAt: timestamp("occurred_at").notNull().defaultNow(),
 	},
 	(t) => [index("order_status_history_order_idx").on(t.orderId)],
-);
-
-export const shopOrderRelations = relations(shopOrder, ({ one, many }) => ({
-	user: one(user, { fields: [shopOrder.userId], references: [user.id] }),
-	items: many(orderItem),
-	statusHistory: many(orderStatusHistory),
-	reviews: many(review),
-}));
-
-export const orderItemRelations = relations(orderItem, ({ one }) => ({
-	order: one(shopOrder, {
-		fields: [orderItem.orderId],
-		references: [shopOrder.id],
-	}),
-	product: one(product, {
-		fields: [orderItem.productId],
-		references: [product.id],
-	}),
-}));
-
-export const orderStatusHistoryRelations = relations(
-	orderStatusHistory,
-	({ one }) => ({
-		order: one(shopOrder, {
-			fields: [orderStatusHistory.orderId],
-			references: [shopOrder.id],
-		}),
-	}),
 );

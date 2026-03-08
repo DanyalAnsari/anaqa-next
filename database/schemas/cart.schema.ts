@@ -9,20 +9,15 @@ import {
 } from "drizzle-orm/pg-core";
 import { user } from "./auth.schema";
 import { product } from "./product.schema";
-import { relations } from "drizzle-orm";
+import { sizeEnum } from "./enums";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Cart  (one active cart per user)
 //
 // couponCode stores ONLY the code reference — not a snapshot of discount terms.
-// Always re-validate and re-compute discount against the live coupon row when
-// loading the cart. Discount terms belong on the order snapshot, not here.
+// Always re-validate against the live coupon row at checkout.
 //
-// The unique constraint on (cartId, productId, size) prevents duplicate line
-// items — merge quantity instead of inserting a second row.
-//
-// Stale cart TTL — Postgres has no equivalent to Mongo's expireAfterSeconds.
-// Run a scheduled job:
+// Stale cart cleanup — run a scheduled job:
 //   DELETE FROM cart WHERE updated_at < NOW() - INTERVAL '30 days'
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -32,13 +27,23 @@ export const cart = pgTable("cart", {
 		.notNull()
 		.unique()
 		.references(() => user.id, { onDelete: "cascade" }),
-	couponCode: text("coupon_code"), // reference only — no snapshot values
+	couponCode: text("coupon_code"),
 	createdAt: timestamp("created_at").notNull().defaultNow(),
 	updatedAt: timestamp("updated_at")
 		.notNull()
 		.defaultNow()
 		.$onUpdate(() => new Date()),
 });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Cart Item
+//
+// Uses sizeEnum (not text) — matches productVariant.size.
+// price is NOT NULL — always captured at add-to-cart time.
+//   Re-validate at checkout; the product price may have changed.
+//
+// CHECK constraint on quantity > 0 is in migration SQL.
+// ─────────────────────────────────────────────────────────────────────────────
 
 export const cartItem = pgTable(
 	"cart_item",
@@ -50,15 +55,12 @@ export const cartItem = pgTable(
 		productId: text("product_id")
 			.notNull()
 			.references(() => product.id, { onDelete: "cascade" }),
-		size: text("size"),
+		size: sizeEnum("size").notNull(),
 		quantity: integer("quantity").notNull(),
-		// Price captured at add-to-cart time. Re-validate at checkout — do not
-		// trust this value blindly; the product price may have changed.
-		price: numeric("price", { precision: 12, scale: 2 }),
+		price: numeric("price", { precision: 12, scale: 2 }).notNull(),
 	},
 	(t) => [
 		index("cart_item_cart_idx").on(t.cartId),
-		// Prevent duplicate size+product entries — merge quantity on conflict instead
 		uniqueIndex("cart_item_cart_product_size_uq").on(
 			t.cartId,
 			t.productId,
@@ -66,16 +68,3 @@ export const cartItem = pgTable(
 		),
 	],
 );
-
-export const cartRelations = relations(cart, ({ one, many }) => ({
-	user: one(user, { fields: [cart.userId], references: [user.id] }),
-	items: many(cartItem),
-}));
-
-export const cartItemRelations = relations(cartItem, ({ one }) => ({
-	cart: one(cart, { fields: [cartItem.cartId], references: [cart.id] }),
-	product: one(product, {
-		fields: [cartItem.productId],
-		references: [product.id],
-	}),
-}));

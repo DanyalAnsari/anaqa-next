@@ -10,15 +10,12 @@ import {
 import { user } from "./auth.schema";
 import { product } from "./product.schema";
 import { shopOrder } from "./order.schema";
-import { relations } from "drizzle-orm";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Review
 //
 // One review per user per product (unique constraint).
-// rating range (1–5) cannot be expressed in Drizzle — add this to your migration:
-//   ALTER TABLE review
-//   ADD CONSTRAINT review_rating_range CHECK (rating BETWEEN 1 AND 5);
+// CHECK constraint: rating BETWEEN 1 AND 5 — in migration SQL.
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const review = pgTable(
@@ -52,15 +49,3 @@ export const review = pgTable(
 		index("review_product_created_idx").on(t.productId, t.createdAt),
 	],
 );
-
-export const reviewRelations = relations(review, ({ one }) => ({
-	user: one(user, { fields: [review.userId], references: [user.id] }),
-	product: one(product, {
-		fields: [review.productId],
-		references: [product.id],
-	}),
-	order: one(shopOrder, {
-		fields: [review.orderId],
-		references: [shopOrder.id],
-	}),
-}));
