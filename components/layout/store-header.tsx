@@ -25,11 +25,7 @@ import {
 	User,
 	Menu,
 	Search,
-	Heart,
 	LogOut,
-	Settings,
-	Package,
-	LayoutDashboard,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { cn } from "@/lib/utils";

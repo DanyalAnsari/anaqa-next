@@ -3,7 +3,18 @@ import { formatPrice } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Package } from "lucide-react";
 
-async function getRecentOrders(userId: string, limit = 3) {
+interface Order {
+	_id: string;
+	orderNumber: string;
+	createdAt: string | Date;
+	status: string;
+	items: any[];
+	pricing: {
+		total: number;
+	};
+}
+
+async function getRecentOrders(userId: string, limit = 3): Promise<Order[]> {
 	const response = await fetch(
 		`${process.env.NEXT_PUBLIC_API_URL}/orders?userId=${userId}&limit=${limit}`,
 		{ cache: "no-store" },
@@ -29,7 +40,7 @@ export async function RecentOrders({ userId }: { userId: string }) {
 
 	return (
 		<div className="space-y-3">
-			{orders.map((order: any) => (
+			{orders.map((order) => (
 				<Link
 					key={order._id}
 					href={`/account/orders/${order._id}`}

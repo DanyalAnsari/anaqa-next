@@ -10,8 +10,6 @@ import PasswordResetEmail from "@/components/emails/password-reset";
 import PasswordChangedEmail from "@/components/emails/password-change";
 import { User } from "better-auth";
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-
 async function renderTemplate(
 	element: ReactElement,
 ): Promise<{ html: string; text: string }> {
