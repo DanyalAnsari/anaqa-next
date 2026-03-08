@@ -1,5 +1,12 @@
 import { relations } from "drizzle-orm";
 import { pgTable, text, timestamp, boolean, index } from "drizzle-orm/pg-core";
+import { address } from "./address.schema";
+import { cart } from "./cart.schema";
+import { shopOrder } from "./order.schema";
+import { review } from "./review.schema";
+import { wishlist } from "./wishlist.schema";
+import { couponUsage } from "./coupon.schema";
+import { waitlist } from "./waitlist.schema";
 
 export const user = pgTable("user", {
 	id: text("id").primaryKey(),
@@ -79,9 +86,16 @@ export const verification = pgTable(
 	(table) => [index("verification_identifier_idx").on(table.identifier)],
 );
 
-export const userRelations = relations(user, ({ many }) => ({
+export const userRelations = relations(user, ({ one, many }) => ({
+	addresses: many(address),
+	cart: one(cart, { fields: [user.id], references: [cart.userId] }),
+	orders: many(shopOrder),
+	reviews: many(review),
+	wishlistItems: many(wishlist),
+	couponUsages: many(couponUsage),
 	sessions: many(session),
 	accounts: many(account),
+	waitlistEntries: many(waitlist),
 }));
 
 export const sessionRelations = relations(session, ({ one }) => ({
