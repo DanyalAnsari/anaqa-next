@@ -53,7 +53,9 @@ export const auth = betterAuth({
 				}
 			},
 		}),
-		admin(),
+		admin({
+			defaultRole: "customer",
+		}),
 		nextCookies(),
 	],
 });
