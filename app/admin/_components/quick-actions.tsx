@@ -1,35 +1,49 @@
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
-import { Package, ShoppingBag, Users, Plus, ArrowRight } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import {
+	Package,
+	ShoppingBag,
+	Users,
+	Plus,
+	ArrowRight,
+	AlertTriangle,
+} from "lucide-react";
 
-const actions = [
-	{
-		label: "Add Product",
-		description: "Create a new product listing",
-		href: "/admin/products/new",
-		icon: Plus,
-	},
-	{
-		label: "View Orders",
-		description: "Manage customer orders",
-		href: "/admin/orders",
-		icon: ShoppingBag,
-	},
-	{
-		label: "Manage Products",
-		description: "Edit your product catalog",
-		href: "/admin/products",
-		icon: Package,
-	},
-	{
-		label: "View Customers",
-		description: "See customer details",
-		href: "/admin/customers",
-		icon: Users,
-	},
-];
+interface QuickActionsProps {
+	lowStockCount?: number;
+}
 
-export function QuickActions() {
+export function QuickActions({ lowStockCount = 0 }: QuickActionsProps) {
+	const actions = [
+		{
+			label: "Add Product",
+			description: "Create a new product listing",
+			href: "/admin/products/new",
+			icon: Plus,
+		},
+		{
+			label: "View Orders",
+			description: "Manage customer orders",
+			href: "/admin/orders",
+			icon: ShoppingBag,
+		},
+		{
+			label: "Manage Products",
+			description: "Edit your product catalog",
+			href: "/admin/products",
+			icon: Package,
+			badge: lowStockCount > 0 ? `${lowStockCount} low stock` : undefined,
+			badgeVariant: "destructive" as const,
+		},
+		{
+			label: "View Customers",
+			description: "See customer details",
+			href: "/admin/customers",
+			icon: Users,
+		},
+	];
+
 	return (
 		<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 			{actions.map((action) => {
@@ -44,7 +58,17 @@ export function QuickActions() {
 											<Icon className="h-5 w-5 text-muted-foreground" />
 										</div>
 										<div>
-											<p className="font-medium text-sm">{action.label}</p>
+											<div className="flex items-center gap-2">
+												<p className="font-medium text-sm">{action.label}</p>
+												{action.badge && (
+													<Badge
+														variant={action.badgeVariant}
+														className="text-xs"
+													>
+														{action.badge}
+													</Badge>
+												)}
+											</div>
 											<p className="text-xs text-muted-foreground">
 												{action.description}
 											</p>

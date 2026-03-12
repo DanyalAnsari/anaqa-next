@@ -13,20 +13,8 @@ import {
 	BreadcrumbPage,
 	BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-
-interface User {
-	name: string;
-	email: string;
-	image?: string | null;
-}
-
-function getInitials(name: string) {
-	if (!name.trim()) return "?";
-	const parts = name.split(" ");
-	return parts.length > 1 ?
-			`${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase()
-		:	parts[0][0].toUpperCase();
-}
+import { getInitials } from "@/lib/utils";
+import { User } from "@/lib/auth-client";
 
 export function AdminHeader({ user }: { user: User }) {
 	const pathname = usePathname();
@@ -59,7 +47,10 @@ export function AdminHeader({ user }: { user: User }) {
 			<div className="flex items-center gap-3">
 				<ThemeToggle />
 				<Avatar className="h-8 w-8">
-					<AvatarImage src={user.image ?? undefined} alt={user.name} />
+					<AvatarImage
+						src={user.avatarFilePath ?? user.image ?? undefined}
+						alt={user.name}
+					/>
 					<AvatarFallback className="text-xs">
 						{getInitials(user.name)}
 					</AvatarFallback>

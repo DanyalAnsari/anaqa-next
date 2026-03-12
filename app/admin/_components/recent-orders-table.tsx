@@ -14,10 +14,10 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import { columns } from "./columns";
-import type { Order } from "../_lib/data";
+import type { RecentOrder } from "../_lib/data";
 
 interface RecentOrdersTableProps {
-	orders: Order[];
+	orders: RecentOrder[];
 }
 
 export function RecentOrdersTable({ orders }: RecentOrdersTableProps) {
@@ -59,7 +59,7 @@ export function RecentOrdersTable({ orders }: RecentOrdersTableProps) {
 						))
 					:	<TableRow>
 							<TableCell colSpan={columns.length} className="h-24 text-center">
-								No orders found.
+								No orders yet.
 							</TableCell>
 						</TableRow>
 					}

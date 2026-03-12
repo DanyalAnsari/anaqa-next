@@ -17,3 +17,13 @@ export function formatPrice(amount: number): string {
 }
 
 export const genId = () => createId();
+
+export const getInitials = (name: string) => {
+	let initials: string;
+	if (!name.trim()) return "?";
+	const fullName = name.split(" ");
+	const firstName = fullName[0];
+	const lastName = fullName[fullName.length - 1];
+	initials = fullName.length > 1 ? `${firstName[0]}${lastName[0]}` : firstName[0];
+	return initials.toUpperCase();
+};

@@ -10,11 +10,11 @@ import {
 	DropdownMenuItem,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MoreHorizontal, Eye, Pencil } from "lucide-react";
-import type { Order } from "../_lib/data";
+import { MoreHorizontal, Eye } from "lucide-react";
+import type { RecentOrder } from "../_lib/data";
 
 const statusVariants: Record<
-	Order["status"],
+	RecentOrder["status"],
 	"default" | "secondary" | "destructive" | "outline"
 > = {
 	pending: "secondary",
@@ -26,7 +26,7 @@ const statusVariants: Record<
 };
 
 const paymentVariants: Record<
-	Order["paymentStatus"],
+	RecentOrder["paymentStatus"],
 	"default" | "secondary" | "destructive" | "outline"
 > = {
 	pending: "secondary",
@@ -38,19 +38,19 @@ const paymentVariants: Record<
 function formatCurrency(amount: number) {
 	return new Intl.NumberFormat("en-US", {
 		style: "currency",
-		currency: "USD",
+		currency: "SAR",
 	}).format(amount);
 }
 
-function formatDate(dateStr: string) {
-	return new Date(dateStr).toLocaleDateString("en-US", {
+function formatDate(date: Date) {
+	return new Intl.DateTimeFormat("en-US", {
 		month: "short",
 		day: "numeric",
 		year: "numeric",
-	});
+	}).format(date);
 }
 
-export const columns: ColumnDef<Order>[] = [
+export const columns: ColumnDef<RecentOrder>[] = [
 	{
 		accessorKey: "orderNumber",
 		header: "Order",
@@ -80,7 +80,7 @@ export const columns: ColumnDef<Order>[] = [
 		header: "Date",
 		cell: ({ row }) => (
 			<span className="text-muted-foreground">
-				{formatDate(row.getValue("createdAt"))}
+				{formatDate(row.original.createdAt)}
 			</span>
 		),
 	},
@@ -122,7 +122,7 @@ export const columns: ColumnDef<Order>[] = [
 		header: () => <div className="text-right">Total</div>,
 		cell: ({ row }) => (
 			<div className="text-right font-medium">
-				{formatCurrency(row.getValue("total"))}
+				{formatCurrency(row.original.total)}
 			</div>
 		),
 	},
@@ -133,20 +133,13 @@ export const columns: ColumnDef<Order>[] = [
 				<DropdownMenuTrigger asChild>
 					<Button variant="ghost" size="icon" className="h-8 w-8">
 						<MoreHorizontal className="h-4 w-4" />
-						<span className="sr-only">Open menu</span>
 					</Button>
 				</DropdownMenuTrigger>
 				<DropdownMenuContent align="end">
 					<DropdownMenuItem asChild>
 						<Link href={`/admin/orders/${row.original.id}`}>
 							<Eye className="h-4 w-4 mr-2" />
-							View
-						</Link>
-					</DropdownMenuItem>
-					<DropdownMenuItem asChild>
-						<Link href={`/admin/orders/${row.original.id}/edit`}>
-							<Pencil className="h-4 w-4 mr-2" />
-							Edit
+							View Details
 						</Link>
 					</DropdownMenuItem>
 				</DropdownMenuContent>
