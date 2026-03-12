@@ -3,7 +3,7 @@ import { nextCookies } from "better-auth/next-js";
 import { admin, emailOTP } from "better-auth/plugins";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "@/database";
-import schema from "@/database/schemas";
+import * as schema from "@/database/schemas";
 
 export const auth = betterAuth({
 	database: drizzleAdapter(db, {
@@ -18,6 +18,7 @@ export const auth = betterAuth({
 			},
 			avatarFileId: { type: "string", required: false },
 			avatarFilePath: { type: "string", required: false },
+			orderUpdates: { type: "boolean", required: false, defaultValue: true },
 		},
 	},
 
@@ -53,7 +54,12 @@ export const auth = betterAuth({
 				}
 			},
 		}),
-		admin(),
+		admin({
+			defaultRole: "customer",
+		}),
 		nextCookies(),
 	],
 });
+
+export type Session = typeof auth.$Infer.Session;
+export type User = Session["user"];
