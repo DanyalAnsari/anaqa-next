@@ -64,7 +64,8 @@ export const imageKitService = {
 		});
 		// Filter out folders, keep only files
 		return items.filter(
-			(item): item is typeof item & { fileId: string } => "fileId" in item,
+			(item): item is typeof item & { fileId: string; createdAt: string } =>
+				"fileId" in item && "createdAt" in item,
 		);
 	},
 
