@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
 	Sidebar,
 	SidebarContent,
@@ -25,19 +25,30 @@ import {
 	Settings,
 	Store,
 	LogOut,
+	FolderTree,
+	Layers,
+	MessageSquare,
+	Ticket,
+	Clock,
 } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 
 const navigation = [
 	{ name: "Dashboard", href: "/admin", icon: LayoutDashboard },
 	{ name: "Products", href: "/admin/products", icon: Package },
+	{ name: "Categories", href: "/admin/categories", icon: FolderTree },
+	{ name: "Collections", href: "/admin/collections", icon: Layers },
 	{ name: "Orders", href: "/admin/orders", icon: ShoppingCart, badge: "3" },
 	{ name: "Customers", href: "/admin/customers", icon: Users },
+	{ name: "Reviews", href: "/admin/reviews", icon: MessageSquare },
+	{ name: "Coupons", href: "/admin/coupons", icon: Ticket },
+	{ name: "Waitlist", href: "/admin/waitlist", icon: Clock },
 	{ name: "Settings", href: "/admin/settings", icon: Settings },
 ];
 
 export default function AdminSidebar() {
 	const pathname = usePathname();
+	const router = useRouter();
 
 	const isActive = (href: string) =>
 		href === "/admin" ? pathname === "/admin" : pathname.startsWith(href);
@@ -46,7 +57,7 @@ export default function AdminSidebar() {
 		await authClient.signOut({
 			fetchOptions: {
 				onSuccess: () => {
-					window.location.href = "/login";
+					router.push("/login");
 				},
 			},
 		});

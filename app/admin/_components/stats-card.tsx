@@ -16,7 +16,9 @@ interface StatsCardsProps {
 function formatCurrency(amount: number) {
 	return new Intl.NumberFormat("en-US", {
 		style: "currency",
-		currency: "USD",
+		currency: "SAR",
+		minimumFractionDigits: 0,
+		maximumFractionDigits: 0,
 	}).format(amount);
 }
 
@@ -37,7 +39,7 @@ const kpiConfig = [
 		icon: ShoppingBag,
 		color: "text-blue-600",
 		bg: "bg-blue-100 dark:bg-blue-900/30",
-		format: (v: number) => v.toString(),
+		format: (v: number) => v.toLocaleString(),
 	},
 	{
 		key: "totalCustomers" as const,
@@ -46,7 +48,7 @@ const kpiConfig = [
 		icon: Users,
 		color: "text-purple-600",
 		bg: "bg-purple-100 dark:bg-purple-900/30",
-		format: (v: number) => v.toString(),
+		format: (v: number) => v.toLocaleString(),
 	},
 	{
 		key: "totalProducts" as const,
@@ -55,7 +57,7 @@ const kpiConfig = [
 		icon: Package,
 		color: "text-orange-600",
 		bg: "bg-orange-100 dark:bg-orange-900/30",
-		format: (v: number) => v.toString(),
+		format: (v: number) => v.toLocaleString(),
 	},
 ];
 
@@ -67,6 +69,7 @@ export function StatsCards({ stats }: StatsCardsProps) {
 				const value = stats[kpi.key];
 				const change = stats[kpi.changeKey];
 				const isPositive = change >= 0;
+				const showChange = kpi.changeKey !== "productsChange";
 
 				return (
 					<Card key={kpi.key}>
@@ -77,14 +80,16 @@ export function StatsCards({ stats }: StatsCardsProps) {
 								>
 									<Icon className={`h-5 w-5 ${kpi.color}`} />
 								</div>
-								<div
-									className={`flex items-center gap-1 text-xs ${isPositive ? "text-green-600" : "text-red-600"}`}
-								>
-									{isPositive ?
-										<TrendingUp className="h-3 w-3" />
-									:	<TrendingDown className="h-3 w-3" />}
-									<span>{Math.abs(change)}%</span>
-								</div>
+								{showChange && change !== 0 && (
+									<div
+										className={`flex items-center gap-1 text-xs ${isPositive ? "text-green-600" : "text-red-600"}`}
+									>
+										{isPositive ?
+											<TrendingUp className="h-3 w-3" />
+										:	<TrendingDown className="h-3 w-3" />}
+										<span>{Math.abs(change)}%</span>
+									</div>
+								)}
 							</div>
 							<p className="text-2xl font-semibold">{kpi.format(value)}</p>
 							<p className="text-sm text-muted-foreground mt-1">{kpi.label}</p>
