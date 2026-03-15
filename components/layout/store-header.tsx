@@ -1,40 +1,15 @@
-"use client";
-
-import { useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-	Sheet,
-	SheetContent,
-	SheetHeader,
-	SheetTitle,
-	SheetTrigger,
-} from "@/components/ui/sheet";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuLabel,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-	ShoppingBag,
-	User,
-	Menu,
-	Search,
-	Heart,
-	LogOut,
-	Settings,
-	Package,
-	LayoutDashboard,
-} from "lucide-react";
+import { ShoppingBag, User, Search } from "lucide-react";
+
 import { ThemeToggle } from "@/components/shared/theme-toggle";
-import { cn } from "@/lib/utils";
-import { toast } from "sonner";
-import { authClient } from "@/lib/auth-client";
+import { MobileNav } from "./mobile-nav";
+import { UserMenu } from "./user-menu";
+import { getCartItemsCount } from "@/database/data/cart";
+import { BRAND } from "@/constants";
 
 const navigation = [
 	{ name: "Shop", href: "/shop" },
@@ -43,148 +18,39 @@ const navigation = [
 	{ name: "Contact", href: "/contact" },
 ];
 
-export function StoreHeader() {
-	const location = usePathname();
-	const navigate = useRouter();
-	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+export async function StoreHeader() {
+	const session = await auth.api.getSession({
+		headers: await headers(),
+	});
+	const user = session?.user;
+	const isAdmin = user?.role === "admin";
 
-	const { data: session } = authClient.useSession();
-
-	const cartItemCount = 0;
-
-	const handleSignOut = async () => {
-		try {
-			const { data, error } = await authClient.signOut();
-
-			if (data?.success) {
-				toast.success("Logged out successfully");
-				navigate.replace("/");
-			}
-			if (error) {
-				toast.error(error.message);
-			}
-		} catch (error) {
-			toast.error("Something went wrong");
-		}
-	};
-
-	const handleCartClick = () => {
-		toast.info("Cart is empty");
-		navigate.push("/cart");
-	};
+	let cartItemCount = 0;
+	if (user) {
+		const itemCount = await getCartItemsCount(user.id);
+		cartItemCount = itemCount;
+	}
 
 	return (
-		<header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
+		<header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
 			<div className="container-wide">
-				{/* Top bar */}
+				{/* Announcement Bar */}
 				<div className="hidden md:flex items-center justify-center py-2 text-xs text-muted-foreground border-b border-border/40">
 					Free shipping on orders over 200 SAR • Easy 30-day returns
 				</div>
 
-				{/* Main header */}
+				{/* Main Header */}
 				<div className="flex h-16 items-center justify-between">
-					{/* Mobile menu trigger */}
-					<Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-						<SheetTrigger asChild className="md:hidden">
-							<Button variant="ghost" size="icon" aria-label="Open menu">
-								<Menu className="h-5 w-5" />
-							</Button>
-						</SheetTrigger>
-						<SheetContent side="left" className="w-75 sm:w-87.5">
-							<SheetHeader>
-								<SheetTitle className="text-left text-2xl font-medium tracking-tight">
-									Anāqa
-								</SheetTitle>
-							</SheetHeader>
-							<nav className="mt-8 flex flex-col space-y-4">
-								{navigation.map((item) => (
-									<Link
-										key={item.name}
-										href={item.href}
-										onClick={() => setMobileMenuOpen(false)}
-										className={cn(
-											"text-lg font-medium py-2 transition-colors",
-											(
-												location === item.href ||
-													location.startsWith(item.href + "/")
-											) ?
-												"text-foreground"
-											:	"text-muted-foreground hover:text-foreground",
-										)}
-									>
-										{item.name}
-									</Link>
-								))}
-								<div className="h-px bg-border my-4" />
-								{session?.user ?
-									<>
-										<Link
-											href="/account"
-											onClick={() => setMobileMenuOpen(false)}
-											className="text-lg font-medium py-2 text-muted-foreground hover:text-foreground transition-colors"
-										>
-											My Account
-										</Link>
-										<button
-											onClick={() => {
-												setMobileMenuOpen(false);
-												handleSignOut();
-											}}
-											className="text-lg font-medium py-2 text-muted-foreground hover:text-foreground transition-colors text-left"
-										>
-											Sign Out
-										</button>
-									</>
-								:	<>
-										<Link
-											href="/auth/sign-in"
-											onClick={() => setMobileMenuOpen(false)}
-											className="text-lg font-medium py-2 text-muted-foreground hover:text-foreground transition-colors"
-										>
-											Sign In
-										</Link>
-										<Link
-											href="/auth/sign-up"
-											onClick={() => setMobileMenuOpen(false)}
-											className="text-lg font-medium py-2 text-muted-foreground hover:text-foreground transition-colors"
-										>
-											Create Account
-										</Link>
-									</>
-								}
-							</nav>
-						</SheetContent>
-					</Sheet>
+					{/* Mobile Menu */}
+					<MobileNav navigation={navigation} user={user} isAdmin={isAdmin} />
 
 					{/* Logo */}
 					<Link href="/" className="flex items-center">
-						<span className="text-2xl font-medium tracking-tight">Anāqa</span>
+						<span className="text-2xl font-medium tracking-tight">{BRAND}</span>
 					</Link>
 
 					{/* Desktop Navigation */}
-					<nav className="hidden md:flex items-center space-x-8">
-						{navigation.map((item) => (
-							<Link
-								key={item.name}
-								href={item.href}
-								className={cn(
-									"text-sm font-medium transition-colors relative py-2",
-									(
-										location === item.href ||
-											location.startsWith(item.href + "/")
-									) ?
-										"text-foreground"
-									:	"text-muted-foreground hover:text-foreground",
-								)}
-							>
-								{item.name}
-								{(location === item.href ||
-									location.startsWith(item.href + "/")) && (
-									<span className="absolute bottom-0 left-0 right-0 h-0.5 bg-foreground" />
-								)}
-							</Link>
-						))}
-					</nav>
+					<DesktopNav navigation={navigation} />
 
 					{/* Actions */}
 					<div className="flex items-center space-x-1">
@@ -197,40 +63,8 @@ export function StoreHeader() {
 						<ThemeToggle />
 
 						{/* User Menu */}
-
-						{session?.user ?
-							<DropdownMenu>
-								<DropdownMenuTrigger asChild>
-									<Button variant="ghost" size="icon" aria-label="Account menu">
-										<User className="h-5 w-5" />
-									</Button>
-								</DropdownMenuTrigger>
-								<DropdownMenuContent align="end" className="w-56">
-									<DropdownMenuLabel>
-										<div className="flex flex-col">
-											<span>{session?.user?.email}</span>
-											<span className="text-xs font-normal text-muted-foreground capitalize">
-												{session?.user?.role}
-											</span>
-										</div>
-									</DropdownMenuLabel>
-									<DropdownMenuSeparator />
-									<DropdownMenuItem asChild>
-										<Link href="/account" className="cursor-pointer">
-											<User className="mr-2 h-4 w-4" />
-											My Account
-										</Link>
-									</DropdownMenuItem>
-									<DropdownMenuSeparator />
-									<DropdownMenuItem
-										onClick={handleSignOut}
-										className="cursor-pointer text-destructive focus:text-destructive"
-									>
-										<LogOut className="mr-2 h-4 w-4" />
-										Sign Out
-									</DropdownMenuItem>
-								</DropdownMenuContent>
-							</DropdownMenu>
+						{user ?
+							<UserMenu user={user} isAdmin={isAdmin} />
 						:	<Link href="/auth/sign-in" className="hidden sm:block">
 								<Button variant="ghost" size="icon" aria-label="Sign in">
 									<User className="h-5 w-5" />
@@ -239,26 +73,47 @@ export function StoreHeader() {
 						}
 
 						{/* Cart */}
-						<Button
-							variant="ghost"
-							size="icon"
-							aria-label="Shopping bag"
-							onClick={handleCartClick}
-							className="relative"
-						>
-							<ShoppingBag className="h-5 w-5" />
-							{cartItemCount > 0 && (
-								<Badge
-									variant="default"
-									className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
-								>
-									{cartItemCount > 99 ? "99+" : cartItemCount}
-								</Badge>
-							)}
-						</Button>
+						<Link href="/cart">
+							<Button
+								variant="ghost"
+								size="icon"
+								aria-label="Shopping bag"
+								className="relative"
+							>
+								<ShoppingBag className="h-5 w-5" />
+								{cartItemCount > 0 && (
+									<Badge
+										variant="default"
+										className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
+									>
+										{cartItemCount > 99 ? "99+" : cartItemCount}
+									</Badge>
+								)}
+							</Button>
+						</Link>
 					</div>
 				</div>
 			</div>
 		</header>
+	);
+}
+
+function DesktopNav({
+	navigation,
+}: {
+	navigation: { name: string; href: string }[];
+}) {
+	return (
+		<nav className="hidden md:flex items-center space-x-8">
+			{navigation.map((item) => (
+				<Link
+					key={item.name}
+					href={item.href}
+					className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors relative py-2"
+				>
+					{item.name}
+				</Link>
+			))}
+		</nav>
 	);
 }
