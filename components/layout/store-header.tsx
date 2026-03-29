@@ -1,6 +1,4 @@
 import Link from "next/link";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ShoppingBag, User, Search } from "lucide-react";
@@ -10,6 +8,7 @@ import { MobileNav } from "./mobile-nav";
 import { UserMenu } from "./user-menu";
 import { getCartItemsCount } from "@/database/data/cart";
 import { BRAND } from "@/constants";
+import { getServerSession } from "@/lib/actions";
 
 const navigation = [
 	{ name: "Shop", href: "/shop" },
@@ -19,9 +18,7 @@ const navigation = [
 ];
 
 export async function StoreHeader() {
-	const session = await auth.api.getSession({
-		headers: await headers(),
-	});
+	const session = await getServerSession();
 	const user = session?.user;
 	const isAdmin = user?.role === "admin";
 
