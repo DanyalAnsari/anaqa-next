@@ -7,18 +7,32 @@ import { AvatarFallback } from "@/components/ui/avatar";
 
 const URL_ENDPOINT = process.env.NEXT_PUBLIC_IMAGEKIT_URL_ENDPOINT || "";
 
+// ── Helpers ──
+
+function buildImageKitUrl(src: string, transforms?: string): string {
+	if (src.startsWith("http")) return src;
+	const cleanPath = src.startsWith("/") ? src.slice(1) : src;
+	return transforms ?
+			`${URL_ENDPOINT}/tr:${transforms}/${cleanPath}`
+		:	`${URL_ENDPOINT}/${cleanPath}`;
+}
+
+// ── OptimizedImage ──
+
 interface OptimizedImageProps extends Omit<
 	React.ComponentProps<typeof Image>,
 	"src"
 > {
 	src?: string | null;
 	fallback?: React.ReactNode;
+	transforms?: string;
 }
 
 function OptimizedImage({
 	src,
 	className,
 	fallback,
+	transforms,
 	onError,
 	...props
 }: OptimizedImageProps) {
@@ -32,9 +46,11 @@ function OptimizedImage({
 		return fallback ? <div className={className}>{fallback}</div> : null;
 	}
 
+	const imageUrl = buildImageKitUrl(src, transforms);
+
 	return (
 		<Image
-			src={src}
+			src={imageUrl}
 			className={cn("rounded-md object-cover", className)}
 			onError={(e) => {
 				setHasError(true);
@@ -44,6 +60,8 @@ function OptimizedImage({
 		/>
 	);
 }
+
+// ── AvatarImage ──
 
 interface AvatarImageProps {
 	src?: string | null;
@@ -66,12 +84,9 @@ function AvatarImage({
 		setHasError(false);
 	}, [src]);
 
-	// Build full ImageKit URL if path is relative
 	const imageUrl = React.useMemo(() => {
 		if (!src) return null;
-		if (src.startsWith("http")) return src;
-		const cleanPath = src.startsWith("/") ? src.slice(1) : src;
-		return `${URL_ENDPOINT}/tr:w-${size},h-${size},c-force,fo-face,q-90/${cleanPath}`;
+		return buildImageKitUrl(src, `w-${size},h-${size},c-force,fo-face,q-90`);
 	}, [src, size]);
 
 	if (!imageUrl || hasError) {
@@ -94,4 +109,48 @@ function AvatarImage({
 	);
 }
 
-export { OptimizedImage, AvatarImage };
+// ── ProductImage (server-friendly, no state) ──
+
+interface ProductImageProps {
+	filePath?: string | null;
+	alt: string;
+	width: number;
+	height: number;
+	className?: string;
+	transforms?: string;
+	priority?: boolean;
+	fallback?: React.ReactNode;
+}
+
+function ProductImage({
+	filePath,
+	alt,
+	width,
+	height,
+	className,
+	transforms,
+	priority = false,
+	fallback,
+}: ProductImageProps) {
+	if (!filePath) {
+		return fallback ? <>{fallback}</> : null;
+	}
+
+	const imageUrl = buildImageKitUrl(
+		filePath,
+		transforms || `w-${width * 2},h-${height * 2},c-at_max,q-80`,
+	);
+
+	return (
+		<Image
+			src={imageUrl}
+			alt={alt}
+			width={width}
+			height={height}
+			priority={priority}
+			className={cn("object-cover", className)}
+		/>
+	);
+}
+
+export { OptimizedImage, AvatarImage, ProductImage, buildImageKitUrl };
