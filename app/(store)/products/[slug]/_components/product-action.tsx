@@ -37,6 +37,7 @@ import {
 	addToWishlist,
 	joinWaitlist,
 } from "./product-action-server";
+import { openCartDrawer } from "@/app/(store)/cart/_components/cart-drawer";
 
 interface Variant {
 	id: string;
@@ -96,6 +97,10 @@ export function ProductActions({ product }: ProductActionsProps) {
 				setJustAdded(true);
 				toast.success("Added to cart!", {
 					description: `${product.name} has been added to your cart.`,
+					action: {
+						label: "View Cart",
+						onClick: () => openCartDrawer(),
+					},
 				});
 				setTimeout(() => setJustAdded(false), 2000);
 				router.refresh();

@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { ShoppingBag, User, Search } from "lucide-react";
+import { User, Search } from "lucide-react";
 
 import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { MobileNav } from "./mobile-nav";
@@ -9,6 +8,7 @@ import { UserMenu } from "./user-menu";
 import { getCartItemsCount } from "@/database/data/cart";
 import { BRAND } from "@/constants";
 import { getServerSession } from "@/lib/actions";
+import { CartButton } from "./cart-button";
 
 const navigation = [
 	{ name: "Shop", href: "/shop" },
@@ -69,25 +69,7 @@ export async function StoreHeader() {
 							</Link>
 						}
 
-						{/* Cart */}
-						<Link href="/cart">
-							<Button
-								variant="ghost"
-								size="icon"
-								aria-label="Shopping bag"
-								className="relative"
-							>
-								<ShoppingBag className="h-5 w-5" />
-								{cartItemCount > 0 && (
-									<Badge
-										variant="default"
-										className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
-									>
-										{cartItemCount > 99 ? "99+" : cartItemCount}
-									</Badge>
-								)}
-							</Button>
-						</Link>
+						<CartButton itemCount={cartItemCount} />
 					</div>
 				</div>
 			</div>
