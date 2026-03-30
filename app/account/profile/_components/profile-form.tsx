@@ -1,10 +1,11 @@
+// app/account/profile/_components/profile-form.tsx
 "use client";
 
 import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { Loader2, Save } from "lucide-react";
+import { Loader2, Save, Pencil, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +15,8 @@ import {
 	FieldDescription,
 	FieldError,
 } from "@/components/ui/field";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 import {
 	updateProfileSchema,
@@ -63,7 +66,9 @@ export function ProfileForm({ user: initialUser }: ProfileFormProps) {
 			phone: phone || undefined,
 			fetchOptions: {
 				onSuccess: () => {
-					toast.success("Profile updated successfully");
+					toast.success("Profile updated", {
+						description: "Your changes have been saved successfully.",
+					});
 					setIsEditing(false);
 				},
 				onError: (ctx) => {
@@ -80,14 +85,23 @@ export function ProfileForm({ user: initialUser }: ProfileFormProps) {
 
 	return (
 		<div className="max-w-2xl">
-			<div className="flex items-center justify-end mb-6">
+			<div className="flex items-center justify-between mb-6">
+				<div className="flex items-center gap-2">
+					{isEditing && (
+						<Badge variant="secondary" className="text-xs">
+							Editing
+						</Badge>
+					)}
+				</div>
 				{!isEditing && (
 					<Button
 						variant="outline"
 						size="sm"
 						onClick={() => setIsEditing(true)}
+						className="gap-2"
 					>
-						Edit
+						<Pencil className="h-3.5 w-3.5" />
+						Edit Profile
 					</Button>
 				)}
 			</div>
@@ -109,6 +123,9 @@ export function ProfileForm({ user: initialUser }: ProfileFormProps) {
 									id={field.name}
 									aria-invalid={fieldState.invalid}
 									disabled={!isEditing}
+									className={cn(
+										!isEditing && "bg-secondary/30 border-transparent",
+									)}
 								/>
 								{fieldState.error && <FieldError errors={[fieldState.error]} />}
 							</Field>
@@ -126,6 +143,9 @@ export function ProfileForm({ user: initialUser }: ProfileFormProps) {
 									id={field.name}
 									aria-invalid={fieldState.invalid}
 									disabled={!isEditing}
+									className={cn(
+										!isEditing && "bg-secondary/30 border-transparent",
+									)}
 								/>
 								{fieldState.error && <FieldError errors={[fieldState.error]} />}
 							</Field>
@@ -140,7 +160,7 @@ export function ProfileForm({ user: initialUser }: ProfileFormProps) {
 						type="email"
 						value={user.email}
 						disabled
-						className="bg-secondary/50"
+						className="bg-secondary/30 border-transparent"
 					/>
 					<FieldDescription>
 						Email cannot be changed. Contact support if you need to update it.
@@ -160,25 +180,32 @@ export function ProfileForm({ user: initialUser }: ProfileFormProps) {
 								aria-invalid={fieldState.invalid}
 								placeholder="+1 (555) 123-4567"
 								disabled={!isEditing}
+								className={cn(
+									!isEditing && "bg-secondary/30 border-transparent",
+								)}
 							/>
+							<FieldDescription>
+								Used for order updates and delivery notifications.
+							</FieldDescription>
 							{fieldState.error && <FieldError errors={[fieldState.error]} />}
 						</Field>
 					)}
 				/>
 
 				{isEditing && (
-					<div className="flex gap-3">
+					<div className="flex gap-3 pt-2">
 						<Button
 							type="submit"
 							disabled={form.formState.isSubmitting || !form.formState.isDirty}
+							className="gap-2"
 						>
 							{form.formState.isSubmitting ?
 								<>
-									<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+									<Loader2 className="h-4 w-4 animate-spin" />
 									Saving…
 								</>
 							:	<>
-									<Save className="mr-2 h-4 w-4" />
+									<Save className="h-4 w-4" />
 									Save Changes
 								</>
 							}
@@ -188,7 +215,9 @@ export function ProfileForm({ user: initialUser }: ProfileFormProps) {
 							variant="outline"
 							onClick={handleCancel}
 							disabled={form.formState.isSubmitting}
+							className="gap-2"
 						>
+							<X className="h-4 w-4" />
 							Cancel
 						</Button>
 					</div>

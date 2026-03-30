@@ -1,13 +1,15 @@
+// app/account/profile/_components/avatar-upload.tsx
 "use client";
 
 import { useRef, useState, useCallback } from "react";
-import { Camera, Upload, Trash2, Loader2 } from "lucide-react";
+import { Camera, Upload, Trash2, Loader2, ImageIcon } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
+	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -28,6 +30,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { uploadAvatar, deleteAvatar } from "../actions";
+import { cn } from "@/lib/utils";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const ACCEPTED_IMAGE_TYPES = [
@@ -52,8 +55,8 @@ export function AvatarUpload({ hasAvatar, initials }: AvatarUploadProps) {
 	);
 	const [showPreviewDialog, setShowPreviewDialog] = useState(false);
 	const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+	const [isDragging, setIsDragging] = useState(false);
 
-	// Cleanup blob URL to prevent memory leaks
 	const cleanupPreview = useCallback(() => {
 		if (preview?.url) {
 			URL.revokeObjectURL(preview.url);
@@ -61,14 +64,8 @@ export function AvatarUpload({ hasAvatar, initials }: AvatarUploadProps) {
 		setPreview(null);
 	}, [preview?.url]);
 
-	const handleFileChange = useCallback(
-		(e: React.ChangeEvent<HTMLInputElement>) => {
-			const file = e.target.files?.[0];
-			// Reset input so same file can be re-selected
-			e.target.value = "";
-			if (!file) return;
-
-			// Client-side validation — fast feedback before hitting the server
+	const processFile = useCallback(
+		(file: File) => {
 			if (!ACCEPTED_IMAGE_TYPES.includes(file.type)) {
 				toast.error("Invalid file type", {
 					description: "Please upload a JPEG, PNG, WebP, or GIF image.",
@@ -83,7 +80,6 @@ export function AvatarUpload({ hasAvatar, initials }: AvatarUploadProps) {
 				return;
 			}
 
-			// Cleanup any previous preview
 			if (preview?.url) {
 				URL.revokeObjectURL(preview.url);
 			}
@@ -94,6 +90,35 @@ export function AvatarUpload({ hasAvatar, initials }: AvatarUploadProps) {
 		},
 		[preview?.url],
 	);
+
+	const handleFileChange = useCallback(
+		(e: React.ChangeEvent<HTMLInputElement>) => {
+			const file = e.target.files?.[0];
+			e.target.value = "";
+			if (file) processFile(file);
+		},
+		[processFile],
+	);
+
+	const handleDrop = useCallback(
+		(e: React.DragEvent) => {
+			e.preventDefault();
+			setIsDragging(false);
+			const file = e.dataTransfer.files[0];
+			if (file) processFile(file);
+		},
+		[processFile],
+	);
+
+	const handleDragOver = useCallback((e: React.DragEvent) => {
+		e.preventDefault();
+		setIsDragging(true);
+	}, []);
+
+	const handleDragLeave = useCallback((e: React.DragEvent) => {
+		e.preventDefault();
+		setIsDragging(false);
+	}, []);
 
 	const handleUpload = async () => {
 		if (!preview?.file) return;
@@ -106,7 +131,9 @@ export function AvatarUpload({ hasAvatar, initials }: AvatarUploadProps) {
 			const result = await uploadAvatar(formData);
 
 			if (result.success) {
-				toast.success("Avatar updated successfully");
+				toast.success("Avatar updated", {
+					description: "Your profile picture has been updated successfully.",
+				});
 				setShowPreviewDialog(false);
 				cleanupPreview();
 			} else {
@@ -125,7 +152,9 @@ export function AvatarUpload({ hasAvatar, initials }: AvatarUploadProps) {
 			const result = await deleteAvatar();
 
 			if (result.success) {
-				toast.success("Avatar removed successfully");
+				toast.success("Avatar removed", {
+					description: "Your profile picture has been removed.",
+				});
 				setShowDeleteDialog(false);
 			} else {
 				toast.error("Delete failed", { description: result.error });
@@ -137,7 +166,6 @@ export function AvatarUpload({ hasAvatar, initials }: AvatarUploadProps) {
 		}
 	};
 
-	// Prevent closing dialogs while async operations are in progress
 	const handlePreviewOpenChange = (open: boolean) => {
 		if (!open && !isUploading) {
 			setShowPreviewDialog(false);
@@ -155,7 +183,6 @@ export function AvatarUpload({ hasAvatar, initials }: AvatarUploadProps) {
 
 	return (
 		<>
-			{/* Hidden native file input */}
 			<input
 				ref={fileInputRef}
 				type="file"
@@ -165,13 +192,18 @@ export function AvatarUpload({ hasAvatar, initials }: AvatarUploadProps) {
 				aria-label="Select avatar image"
 			/>
 
-			{/* Camera trigger with dropdown */}
 			<DropdownMenu>
 				<DropdownMenuTrigger asChild>
 					<Button
 						size="icon"
 						variant="secondary"
-						className="absolute bottom-0 right-0 h-8 w-8 rounded-full shadow-md"
+						className={cn(
+							"absolute bottom-0 right-0 h-9 w-9 rounded-full",
+							"shadow-lg border border-border/50",
+							"bg-background hover:bg-accent",
+							"transition-all duration-200",
+							"hover:scale-110 active:scale-95",
+						)}
 						disabled={isBusy}
 					>
 						{isBusy ?
@@ -181,23 +213,29 @@ export function AvatarUpload({ hasAvatar, initials }: AvatarUploadProps) {
 					</Button>
 				</DropdownMenuTrigger>
 				<DropdownMenuContent align="end" className="w-48">
-					<DropdownMenuItem onClick={() => fileInputRef.current?.click()}>
+					<DropdownMenuItem
+						onClick={() => fileInputRef.current?.click()}
+						className="cursor-pointer"
+					>
 						<Upload className="h-4 w-4 mr-2" />
 						Upload photo
 					</DropdownMenuItem>
 					{hasAvatar && (
-						<DropdownMenuItem
-							onClick={() => setShowDeleteDialog(true)}
-							className="text-destructive focus:text-destructive"
-						>
-							<Trash2 className="h-4 w-4 mr-2" />
-							Remove photo
-						</DropdownMenuItem>
+						<>
+							<DropdownMenuSeparator />
+							<DropdownMenuItem
+								onClick={() => setShowDeleteDialog(true)}
+								className="text-destructive focus:text-destructive cursor-pointer"
+							>
+								<Trash2 className="h-4 w-4 mr-2" />
+								Remove photo
+							</DropdownMenuItem>
+						</>
 					)}
 				</DropdownMenuContent>
 			</DropdownMenu>
 
-			{/* ── Upload Preview Dialog ── */}
+			{/* Upload Preview Dialog */}
 			<Dialog open={showPreviewDialog} onOpenChange={handlePreviewOpenChange}>
 				<DialogContent className="sm:max-w-md">
 					<DialogHeader>
@@ -207,21 +245,42 @@ export function AvatarUpload({ hasAvatar, initials }: AvatarUploadProps) {
 						</DialogDescription>
 					</DialogHeader>
 
-					<div className="flex flex-col items-center gap-4 py-6">
-						<Avatar className="h-40 w-40 border-2 border-border">
-							{preview?.url && (
-								<AvatarImage src={preview.url} alt="Avatar preview" />
-							)}
-							<AvatarFallback className="text-4xl">{initials}</AvatarFallback>
-						</Avatar>
+					<div
+						className={cn(
+							"flex flex-col items-center gap-4 py-6 rounded-lg transition-colors",
+							isDragging &&
+								"bg-primary/5 border-2 border-dashed border-primary/50",
+						)}
+						onDrop={handleDrop}
+						onDragOver={handleDragOver}
+						onDragLeave={handleDragLeave}
+					>
+						<div className="relative">
+							<div className="absolute -inset-1 bg-gradient-to-tr from-primary to-primary/30 rounded-full blur opacity-25" />
+							<Avatar className="relative h-36 w-36 border-2 border-border shadow-xl">
+								{preview?.url && (
+									<AvatarImage src={preview.url} alt="Avatar preview" />
+								)}
+								<AvatarFallback className="text-4xl bg-muted">
+									{initials}
+								</AvatarFallback>
+							</Avatar>
+						</div>
 
 						{preview?.file && (
-							<p className="text-sm text-muted-foreground text-center">
-								{preview.file.name}
-								<span className="mx-1.5 text-border">·</span>
-								{(preview.file.size / (1024 * 1024)).toFixed(2)} MB
-							</p>
+							<div className="text-center space-y-1">
+								<p className="text-sm font-medium truncate max-w-[200px]">
+									{preview.file.name}
+								</p>
+								<p className="text-xs text-muted-foreground">
+									{(preview.file.size / (1024 * 1024)).toFixed(2)} MB
+								</p>
+							</div>
 						)}
+
+						<p className="text-xs text-muted-foreground">
+							Drop a new image here to replace
+						</p>
 					</div>
 
 					<DialogFooter className="gap-2 sm:gap-0">
@@ -249,7 +308,7 @@ export function AvatarUpload({ hasAvatar, initials }: AvatarUploadProps) {
 				</DialogContent>
 			</Dialog>
 
-			{/* ── Delete Confirmation Dialog ── */}
+			{/* Delete Confirmation Dialog */}
 			<AlertDialog
 				open={showDeleteDialog}
 				onOpenChange={handleDeleteOpenChange}
@@ -262,10 +321,6 @@ export function AvatarUpload({ hasAvatar, initials }: AvatarUploadProps) {
 							initials will be shown instead.
 						</AlertDialogDescription>
 					</AlertDialogHeader>
-					{/*
-					  Using plain <Button> instead of AlertDialogAction / AlertDialogCancel
-					  so the dialog stays open while the async delete is in-flight.
-					*/}
 					<AlertDialogFooter>
 						<Button
 							variant="outline"

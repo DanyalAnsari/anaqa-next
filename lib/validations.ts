@@ -137,7 +137,7 @@ export const addressSchema = z.object({
 		.max(200, "Address is too long"),
 	line2: z.string().max(200, "Address is too long").optional(),
 	city: z.string().min(1, "City is required").max(100, "City name is too long"),
-	region: z
+	state: z
 		.string()
 		.min(1, "State/Region is required")
 		.max(100, "Region name is too long"),

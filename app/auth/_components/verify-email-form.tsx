@@ -30,7 +30,7 @@ type VerifyState = "waiting" | "verifying" | "success" | "error";
 // ─── Component ──────────────────────────────────────────────────────────────
 
 export function VerifyEmailForm() {
-	const [pendingEmail, setPendingEmail] = useState(() => {
+	const [pendingEmail] = useState(() => {
 		if (typeof window === "undefined") {
 			return null;
 		}
