@@ -9,7 +9,8 @@ export function cn(...inputs: ClassValue[]) {
 const SAR_FORMATTER = new Intl.NumberFormat("en-SA", {
 	style: "currency",
 	currency: "SAR",
-	minimumFractionDigits: 2,
+	minimumFractionDigits: 0,
+	maximumFractionDigits: 2,
 });
 
 export function formatPrice(amount: number): string {
@@ -24,6 +25,17 @@ export const getInitials = (name: string) => {
 	const fullName = name.split(" ");
 	const firstName = fullName[0];
 	const lastName = fullName[fullName.length - 1];
-	initials = fullName.length > 1 ? `${firstName[0]}${lastName[0]}` : firstName[0];
+	initials =
+		fullName.length > 1 ? `${firstName[0]}${lastName[0]}` : firstName[0];
 	return initials.toUpperCase();
 };
+
+export function formatDate(
+	date: Date | string,
+	opts?: Intl.DateTimeFormatOptions,
+): string {
+	return new Date(date).toLocaleDateString(
+		"en-US",
+		opts ?? { month: "short", day: "numeric", year: "numeric" },
+	);
+}
