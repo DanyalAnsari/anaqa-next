@@ -1,10 +1,11 @@
+import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
-import Link from "next/link";
 
 export default function AboutPage() {
 	return (
-		<div className="fade-in">
+		<div className="animate-in fade-in duration-500">
 			{/* Hero */}
 			<section className="relative py-20 md:py-32">
 				<div className="container-wide">
@@ -27,11 +28,12 @@ export default function AboutPage() {
 			<section className="py-16 md:py-24 bg-secondary/30">
 				<div className="container-wide">
 					<div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-						<div>
-							<img
+						<div className="relative aspect-[4/3] rounded-lg overflow-hidden">
+							<Image
 								src="https://images.unsplash.com/photo-1558171813-4c088753af8f?w=800&q=80"
 								alt="Anāqa workshop"
-								className="rounded-lg w-full aspect-4/3 object-cover"
+								fill
+								className="object-cover"
 							/>
 						</div>
 						<div className="lg:pl-8">
