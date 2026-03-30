@@ -1,9 +1,10 @@
+// app/(store)/contact/page.tsx
+import { ContactForm } from "./_components/contact-form";
 import { Mail, MapPin, Phone } from "lucide-react";
-import ContactForm from "./_components/contact-form";
 
 export default function ContactPage() {
 	return (
-		<div className="fade-in">
+		<div className="animate-in fade-in duration-500">
 			{/* Hero */}
 			<section className="py-12 md:py-20 bg-secondary/30">
 				<div className="container-wide">
@@ -12,7 +13,7 @@ export default function ContactPage() {
 							Contact Us
 						</h1>
 						<p className="text-lg text-muted-foreground">
-							Have a question or need assistance? We're here to help.
+							Have a question or need assistance? We&apos;re here to help.
 						</p>
 					</div>
 				</div>
@@ -27,7 +28,7 @@ export default function ContactPage() {
 							<h2 className="text-2xl font-medium mb-6">Get in Touch</h2>
 							<p className="text-muted-foreground mb-8">
 								Whether you have a question about an order, need styling advice,
-								or just want to say hello, we'd love to hear from you.
+								or just want to say hello, we&apos;d love to hear from you.
 							</p>
 
 							<div className="space-y-6">
@@ -50,9 +51,9 @@ export default function ContactPage() {
 									</div>
 									<div>
 										<h3 className="font-medium mb-1">Phone</h3>
-										<p className="text-muted-foreground">+1 (555) 123-4567</p>
+										<p className="text-muted-foreground">+966 50 123 4567</p>
 										<p className="text-sm text-muted-foreground">
-											Mon-Fri, 9am-5pm EST
+											Sun–Thu, 9am–5pm AST
 										</p>
 									</div>
 								</div>
@@ -63,32 +64,31 @@ export default function ContactPage() {
 									</div>
 									<div>
 										<h3 className="font-medium mb-1">Location</h3>
-										<p className="text-muted-foreground">123 Fashion Avenue</p>
-										<p className="text-muted-foreground">New York, NY 10001</p>
+										<p className="text-muted-foreground">King Fahd Road</p>
+										<p className="text-muted-foreground">
+											Riyadh, Saudi Arabia
+										</p>
 									</div>
 								</div>
 							</div>
 
-							{/* Social Links */}
 							<div className="mt-8 pt-8 border-t border-border">
 								<h3 className="font-medium mb-4">Follow Us</h3>
 								<div className="flex gap-4">
-									{["Instagram", "Twitter", "Pinterest", "Facebook"].map(
-										(social) => (
-											<a
-												key={social}
-												href="#"
-												className="text-muted-foreground hover:text-foreground transition-colors"
-											>
-												{social}
-											</a>
-										),
-									)}
+									{["Instagram", "Twitter", "Pinterest"].map((social) => (
+										<a
+											key={social}
+											href="#"
+											className="text-muted-foreground hover:text-foreground transition-colors text-sm"
+										>
+											{social}
+										</a>
+									))}
 								</div>
 							</div>
 						</div>
 
-						{/* Contact Form */}
+						{/* Form */}
 						<ContactForm />
 					</div>
 				</div>
