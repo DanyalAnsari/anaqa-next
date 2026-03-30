@@ -55,12 +55,13 @@ export function QuickLinks() {
 						href={link.href}
 						className={cn(
 							"group relative flex items-start gap-4 p-4",
-							"rounded-lg border border-border",
-							"hover:border-primary/50 hover:bg-accent/50",
+							"rounded-xl border border-border/50",
+							"bg-background/50 backdrop-blur-sm",
+							"hover:border-primary/50 hover:bg-accent/50 hover:shadow-sm",
 							"transition-all duration-200",
 						)}
 					>
-						<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10">
+						<div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 group-hover:bg-primary/15 transition-colors">
 							<Icon className="h-5 w-5 text-primary" />
 						</div>
 						<div className="flex-1 min-w-0">

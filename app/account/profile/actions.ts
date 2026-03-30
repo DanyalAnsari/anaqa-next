@@ -110,10 +110,10 @@ export async function deleteAvatar(): Promise<
 
 		if (!session?.user) return { success: false, error: "Unauthorized" };
 
-		if (session.user.avatarFileId) {
-			const { imageKitService } = await import("@/services/imagekit.service");
-			await imageKitService.deleteImage(session.user.avatarFileId);
-		}
+		const { imageKitService } = await import("@/services/imagekit.service");
+		
+		// Remove all user avatars from ImageKit by folder listing
+		await imageKitService.cleanupOldAvatars(session.user.id, 0);
 
 		// Clear avatar fields in the database
 		await updateUserAvatar(null);
@@ -138,8 +138,6 @@ async function updateUserAvatar(
 		headers: await headers(),
 		body: {
 			image: avatar?.url ?? null,
-			avatarFileId: avatar?.fileId ?? null,
-			avatarFilePath: avatar?.filePath ?? null,
 		},
 	});
 }

@@ -1,10 +1,11 @@
+// app/account/profile/_components/change-password-dialog.tsx
 "use client";
 
 import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { Loader2, Eye, EyeOff } from "lucide-react";
+import { Loader2, Eye, EyeOff, Key } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,6 +24,7 @@ import {
 	FieldError,
 } from "@/components/ui/field";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { cn } from "@/lib/utils";
 
 import {
 	changePasswordSchema,
@@ -34,6 +36,7 @@ export function ChangePasswordDialog() {
 	const [open, setOpen] = useState(false);
 	const [showCurrent, setShowCurrent] = useState(false);
 	const [showNew, setShowNew] = useState(false);
+	const [showConfirm, setShowConfirm] = useState(false);
 	const [isLoading, setIsLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 
@@ -60,7 +63,7 @@ export function ChangePasswordDialog() {
 				newPassword,
 				fetchOptions: {
 					onSuccess: () => {
-						toast.success("Password changed successfully", {
+						toast.success("Password changed", {
 							description: "You may need to sign in again on other devices.",
 						});
 						setOpen(false);
@@ -71,15 +74,27 @@ export function ChangePasswordDialog() {
 					},
 				},
 			});
-		} catch (error: any) {
-			setError(error.message ?? "Something went wrong");
+		} catch (error: unknown) {
+			const message =
+				error instanceof Error ? error.message : "Something went wrong";
+			setError(message);
 		} finally {
 			setIsLoading(false);
 		}
 	}
 
+	const handleOpenChange = (newOpen: boolean) => {
+		if (!newOpen && !isLoading) {
+			setOpen(false);
+			form.reset();
+			setError(null);
+		} else {
+			setOpen(newOpen);
+		}
+	};
+
 	return (
-		<Dialog open={open} onOpenChange={setOpen}>
+		<Dialog open={open} onOpenChange={handleOpenChange}>
 			<DialogTrigger asChild>
 				<Button variant="outline" size="sm">
 					Change
@@ -87,7 +102,10 @@ export function ChangePasswordDialog() {
 			</DialogTrigger>
 			<DialogContent className="sm:max-w-md">
 				<DialogHeader>
-					<DialogTitle>Change Password</DialogTitle>
+					<DialogTitle className="flex items-center gap-2">
+						<Key className="h-5 w-5 text-primary" />
+						Change Password
+					</DialogTitle>
 					<DialogDescription>
 						Enter your current password and choose a new one.
 					</DialogDescription>
@@ -119,6 +137,7 @@ export function ChangePasswordDialog() {
 										placeholder="••••••••"
 										autoComplete="current-password"
 										disabled={isLoading}
+										className="pr-10"
 									/>
 									<Button
 										type="button"
@@ -155,6 +174,7 @@ export function ChangePasswordDialog() {
 										placeholder="••••••••"
 										autoComplete="new-password"
 										disabled={isLoading}
+										className="pr-10"
 									/>
 									<Button
 										type="button"
@@ -170,8 +190,8 @@ export function ChangePasswordDialog() {
 									</Button>
 								</div>
 								<FieldDescription>
-									Must be at least 8 characters with uppercase, lowercase,
-									number, and special character
+									At least 8 characters with uppercase, lowercase, number, and
+									special character.
 								</FieldDescription>
 								{fieldState.invalid && (
 									<FieldError errors={[fieldState.error]} />
@@ -188,15 +208,30 @@ export function ChangePasswordDialog() {
 								<FieldLabel htmlFor={field.name}>
 									Confirm New Password
 								</FieldLabel>
-								<Input
-									{...field}
-									id={field.name}
-									type="password"
-									aria-invalid={fieldState.invalid}
-									placeholder="••••••••"
-									autoComplete="new-password"
-									disabled={isLoading}
-								/>
+								<div className="relative">
+									<Input
+										{...field}
+										id={field.name}
+										type={showConfirm ? "text" : "password"}
+										aria-invalid={fieldState.invalid}
+										placeholder="••••••••"
+										autoComplete="new-password"
+										disabled={isLoading}
+										className="pr-10"
+									/>
+									<Button
+										type="button"
+										variant="ghost"
+										size="icon"
+										className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+										onClick={() => setShowConfirm(!showConfirm)}
+										tabIndex={-1}
+									>
+										{showConfirm ?
+											<EyeOff className="h-4 w-4 text-muted-foreground" />
+										:	<Eye className="h-4 w-4 text-muted-foreground" />}
+									</Button>
+								</div>
 								{fieldState.invalid && (
 									<FieldError errors={[fieldState.error]} />
 								)}
@@ -208,10 +243,8 @@ export function ChangePasswordDialog() {
 						<Button
 							type="button"
 							variant="outline"
-							onClick={() => {
-								setOpen(false);
-								form.reset();
-							}}
+							onClick={() => handleOpenChange(false)}
+							disabled={isLoading}
 						>
 							Cancel
 						</Button>
