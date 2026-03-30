@@ -1,14 +1,23 @@
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import {
 	ArrowRight,
-	Package,
+	Truck,
 	RefreshCw,
 	Shield,
 	Sparkles,
-	Truck,
+	Package,
 } from "lucide-react";
-import Link from "next/link";
+
+import { ProductCard } from "@/components/shared/product-card";
+import { CollectionCard } from "@/components/shared/collection-card";
+import { NewsletterSection } from "@/components/shared/newsletter-section";
+import { getFeaturedCollections } from "@/database/data/collections";
+import {
+	getProductsPrimaryImages,
+	getTopSellingProducts,
+} from "@/database/data/products";
+import { getCategories } from "@/database/data/categories";
 
 const valueProps = [
 	{
@@ -34,12 +43,35 @@ const valueProps = [
 	},
 ];
 
-export default function Home() {
+export default async function HomePage() {
+	const [featuredCollections, featuredProducts, primaryImages, categories] =
+		await Promise.all([
+			getFeaturedCollections(3),
+			getTopSellingProducts(8),
+			getProductsPrimaryImages(),
+			getCategories(4),
+		]);
+
+	// Fetch primary images for featured products
+
+	const imageMap = new Map(primaryImages.map((img) => [img.productId, img]));
+
+	const serializedProducts = featuredProducts.map((p) => {
+		const img = imageMap.get(p.id);
+		return {
+			...p,
+			price: Number(p.price),
+			comparePrice: p.comparePrice ? Number(p.comparePrice) : null,
+			averageRating: Number(p.averageRating),
+			imageFilePath: img?.filePath ?? null,
+			imageAlt: img?.altText ?? p.name,
+		};
+	});
+
 	return (
-		<div className="fade-in">
+		<div className="animate-in fade-in duration-500">
 			{/* Hero Section */}
 			<section className="relative min-h-[85vh] flex items-center">
-				{/* Background */}
 				<div className="absolute inset-0">
 					<div
 						className="absolute inset-0 bg-cover bg-center"
@@ -48,10 +80,9 @@ export default function Home() {
 								"url('https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1920&q=80')",
 						}}
 					/>
-					<div className="absolute inset-0 bg-linear-to-r from-background/95 via-background/70 to-background/30" />
+					<div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/70 to-background/30" />
 				</div>
 
-				{/* Content */}
 				<div className="relative container-wide py-20">
 					<div className="max-w-2xl">
 						<span className="inline-block text-sm uppercase tracking-[0.2em] text-muted-foreground mb-6">
@@ -130,13 +161,20 @@ export default function Home() {
 						</Button>
 					</div>
 
-					<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-						{[1, 2, 3].map((i) => (
-							<div key={i} className="space-y-4">
-								<Skeleton className="aspect-4/5 rounded-lg" />
-							</div>
-						))}
-					</div>
+					{featuredCollections.length > 0 ?
+						<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+							{featuredCollections.map((collection) => (
+								<CollectionCard
+									key={collection.id}
+									collection={collection}
+									variant="overlay"
+								/>
+							))}
+						</div>
+					:	<p className="text-center text-muted-foreground py-12">
+							No collections available yet.
+						</p>
+					}
 
 					<div className="mt-8 text-center md:hidden">
 						<Button variant="outline" asChild>
@@ -169,13 +207,22 @@ export default function Home() {
 						</Button>
 					</div>
 
-					<div className="text-center py-16">
-						<div className="w-16 h-16 mx-auto mb-4 rounded-full bg-secondary flex items-center justify-center">
-							<Package className="h-8 w-8 text-muted-foreground" />
+					{serializedProducts.length > 0 ?
+						<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+							{serializedProducts.map((p, idx) => (
+								<ProductCard key={p.id} product={p} priority={idx < 4} />
+							))}
 						</div>
-						<h3 className="text-lg font-medium mb-2">No products found</h3>
-						<p className="text-muted-foreground">No products found</p>
-					</div>
+					:	<div className="text-center py-16">
+							<div className="w-16 h-16 mx-auto mb-4 rounded-full bg-secondary flex items-center justify-center">
+								<Package className="h-8 w-8 text-muted-foreground" />
+							</div>
+							<h3 className="text-lg font-medium mb-2">No products yet</h3>
+							<p className="text-muted-foreground">
+								Check back soon for new arrivals.
+							</p>
+						</div>
+					}
 
 					<div className="mt-12 text-center">
 						<Button variant="outline" size="lg" asChild>
@@ -199,7 +246,7 @@ export default function Home() {
 									"url('https://images.unsplash.com/photo-1558171813-4c088753af8f?w=1920&q=80')",
 							}}
 						/>
-						<div className="absolute inset-0 bg-linear-to-r from-black/70 via-black/50 to-transparent" />
+						<div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-transparent" />
 
 						<div className="relative py-20 md:py-32 px-8 md:px-16">
 							<div className="max-w-xl text-white">
@@ -225,7 +272,7 @@ export default function Home() {
 				</div>
 			</section>
 
-			{/* Categories Grid — Dynamic from API */}
+			{/* Categories Grid */}
 			<section className="editorial-spacing bg-secondary/30">
 				<div className="container-wide">
 					<div className="text-center mb-12">
@@ -233,27 +280,22 @@ export default function Home() {
 							Shop by Category
 						</h2>
 						<p className="text-muted-foreground max-w-2xl mx-auto">
-							Find exactly what you're looking for in our carefully organized
-							categories.
+							Find exactly what you&apos;re looking for in our carefully
+							organized categories.
 						</p>
 					</div>
 
 					<div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-						{[
-							{ name: "Abayas", slug: "abayas" },
-							{ name: "Hijabs", slug: "hijabs" },
-							{ name: "Dresses", slug: "dresses" },
-							{ name: "Outerwear", slug: "outerwear" },
-						].map((category) => (
+						{categories.map((cat) => (
 							<Link
-								key={category.slug}
-								href={`/shop?category=${category.slug}`}
-								className="group relative aspect-3/4 rounded-lg overflow-hidden bg-secondary"
+								key={cat.id}
+								href={`/shop?category=${cat.slug}`}
+								className="group relative aspect-[3/4] rounded-lg overflow-hidden bg-secondary"
 							>
-								<div className="absolute inset-0 bg-linear-to-t from-black/60 to-transparent" />
+								<div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
 								<div className="absolute inset-0 flex items-end p-4 md:p-6">
 									<h3 className="text-white font-medium text-lg md:text-xl">
-										{category.name}
+										{cat.name}
 									</h3>
 								</div>
 							</Link>
@@ -262,16 +304,16 @@ export default function Home() {
 				</div>
 			</section>
 
-			{/* Testimonials / Social Proof */}
+			{/* Testimonial */}
 			<section className="editorial-spacing">
 				<div className="container-narrow text-center">
 					<span className="text-sm uppercase tracking-widest text-muted-foreground mb-4 block">
 						What Our Customers Say
 					</span>
 					<blockquote className="text-2xl md:text-3xl font-medium italic mb-6 leading-relaxed">
-						"Anāqa has completely transformed my wardrobe. The quality is
+						&ldquo;Anāqa has completely transformed my wardrobe. The quality is
 						exceptional, and I love how each piece makes me feel elegant and
-						confident."
+						confident.&rdquo;
 					</blockquote>
 					<div className="flex items-center justify-center gap-3">
 						<div className="w-12 h-12 rounded-full bg-secondary" />
@@ -282,6 +324,9 @@ export default function Home() {
 					</div>
 				</div>
 			</section>
+
+			{/* Newsletter */}
+			<NewsletterSection />
 		</div>
 	);
 }
